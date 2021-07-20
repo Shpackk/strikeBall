@@ -22,13 +22,14 @@ app.post('/user/create', (req, res) => {
         .catch(err => console.log(err))
 })
 
-app.delete('/deleteuser', (req,res) => {
+app.delete('/user/delete', (req, res) => {
     const name = req.body.name
     User.destroy({
         where: {
             name
         }
-    }).then(result => {res.json(result)
+    }).then(result => {
+        res.json(result)
     }).catch(err => console.log(err))
 })
 
