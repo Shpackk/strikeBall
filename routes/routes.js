@@ -15,14 +15,27 @@ router.post('/user/create', (req, res) => {
 
 router.delete('/user/delete', (req, res) => {
     const name = req.body.name
+    const role = req.body.role
     User.destroy({
         where: {
-            name
+            name,
+            role
         }
     }).then(result => {
         res.json(result)
     }).catch(err => console.log(err))
 })
 
+router.patch('/user/role', (req, res) => {
+    const name = req.body.name
+    const role = req.body.role
+    User.update({ role }, {
+        where: {
+            name
+        }
+    }).then((result) => {
+        res.json(result).status(200);
+    });
+})
 
 module.exports = router;
