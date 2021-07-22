@@ -1,8 +1,6 @@
-const { Router } = require('express')
 const User = require('../models/User')
-const router = Router();
 
-router.post('/user/create', (req, res) => {
+module.exports.create_user = (req, res) => {
     const name = req.body.name
     const role = req.body.role
     User.create({
@@ -11,9 +9,9 @@ router.post('/user/create', (req, res) => {
     })
         .then(result => res.send(result))
         .catch(err => console.log(err))
-})
+}
 
-router.delete('/user/delete', async (req, res) => {
+module.exports.delete_user = async (req, res) => {
     const name = req.body.name
     const role = req.body.role
     try {
@@ -30,9 +28,9 @@ router.delete('/user/delete', async (req, res) => {
     // 20-25 dto
     // data access object
     // repositories
-})
+}
 
-router.patch('/user/role', (req, res) => {
+module.exports.patch_user = (req, res) => {
     const name = req.body.name
     const role = req.body.role
     User.update({ role }, {
@@ -45,6 +43,4 @@ router.patch('/user/role', (req, res) => {
         // error handler 
         // null check 
     });
-})
-
-module.exports = router;
+}

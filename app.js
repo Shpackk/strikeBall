@@ -2,7 +2,8 @@ const express = require('express')
 const app = express()
 const PORT = process.env.PORT || 3000
 const db = require('./config/database')
-const userRoutes = require('./routes/routes')
+require('dotenv').config()
+const userRoutes = require('./routes/UserRoutes')
 
 app.use(express.static('static'))
 app.use(express.json())
@@ -15,12 +16,4 @@ db.sync()
 // app listening 
 app.listen(PORT, () => {
     console.log(`listening on port ${PORT}`)
-    // try {
-    //     db.authenticate()
-    //     console.log('DB is connected!')
-    // } catch (error) {
-    //     console.log(error)
-    // }
-    // ----check what it does
-    // ----- connection files
 })
