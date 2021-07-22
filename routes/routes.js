@@ -13,17 +13,23 @@ router.post('/user/create', (req, res) => {
         .catch(err => console.log(err))
 })
 
-router.delete('/user/delete', (req, res) => {
+router.delete('/user/delete', async (req, res) => {
     const name = req.body.name
     const role = req.body.role
-    User.destroy({
-        where: {
-            name,
-            role
-        }
-    }).then(result => {
+    try {
+        const result = await User.destroy({
+            where: {
+                name,
+                role
+            }
+        })
         res.json(result)
-    }).catch(err => console.log(err))
+    } catch (error) {
+        console.log(error)
+    }
+    // 20-25 dto
+    // data access object
+    // repositories
 })
 
 router.patch('/user/role', (req, res) => {
@@ -35,6 +41,9 @@ router.patch('/user/role', (req, res) => {
         }
     }).then((result) => {
         res.json(result).status(200);
+        // add status codes to response
+        // error handler 
+        // null check 
     });
 })
 
