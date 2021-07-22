@@ -25,9 +25,6 @@ module.exports.delete_user = async (req, res) => {
     } catch (error) {
         console.log(error)
     }
-    // 20-25 dto
-    // data access object
-    // repositories
 }
 
 module.exports.patch_user = (req, res) => {
@@ -39,8 +36,5 @@ module.exports.patch_user = (req, res) => {
         }
     }).then((result) => {
         res.json(result).status(200);
-        // add status codes to response
-        // error handler 
-        // null check 
     });
 }
