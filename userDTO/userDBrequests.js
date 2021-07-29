@@ -1,10 +1,11 @@
 const User = require('../models/User')
 
-async function writeUser(name, role, password) {
+async function writeUser(name, role, password, email) {
     return await User.create({
+        email,
         name,
         role,
-        password
+        password,
     })
 } // fix module exports
 

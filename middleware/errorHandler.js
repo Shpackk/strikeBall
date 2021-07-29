@@ -17,7 +17,10 @@ function errorHandler(err, req, res, next) {
         res.status(400).json({ "message": "Password should be greater than 5" })
     }
     if (err.msg == "name") {
-        res.status(400).json({ "message": "Name should be greater than 4" })
+        res.status(400).json({ "message": "Name should be in lowerCase and greater than 4" })
+    }
+    if (err.msg == "email") {
+        res.status(400).json({ "message": "Bad Email" })
     }
 }
 

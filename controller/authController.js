@@ -5,21 +5,18 @@ const check = require('../middleware/inputVerify')
 
 module.exports.createUser = async (req, res, next) => {
     try {
-        // add email to reqistration
-        const { name, role, password } = req.body
-        const checkResult = check.badInput(name, role, password)
-        if (checkResult) {
-            error = { "msg": checkResult }
-            throw error
-        }
-        const checkUser = await dbRequest.findOneByName(name)
+        const { user } = req.body
+        check.inputValidation(user)
+
+        const checkUser = await dbRequest.findOneByName(user.name)
         if (!checkUser) {
-            const hashedPassword = await bcrypt.hash(password, 10)
-            dbRequest.writeUser(name, role, hashedPassword)
+            const hashedPassword = await bcrypt.hash(user.password, 10)
+            dbRequest.writeUser(user.name, user.role, hashedPassword, user.email)
                 .then(user => {
                     const accessToken = token.sign(user.dataValues)
                     res.json({
                         id: user.id,
+                        email: user.email,
                         name: user.name,
                         role: user.role,
                         token: accessToken
@@ -30,21 +27,23 @@ module.exports.createUser = async (req, res, next) => {
             throw error
         }
     } catch (error) {
+        console.log(error)
         next(error)
     }
 }
 
 module.exports.loginUser = (req, res, next) => {
-    const { name, password } = req.body
-    dbRequest.findOneByName(name)
-        .then(user => {
-            const auth = bcrypt.compare(password, user.password)
+    const { user } = req.body
+    check.inputValidation(user)
+    dbRequest.findOneByName(user.name)
+        .then(userDB => {
+            const auth = bcrypt.compare(user.password, userDB.password)
             if (auth) {
-                const accessToken = token.sign(user.dataValues)
+                const accessToken = token.sign(userDB.dataValues)
                 res.json({
-                    id: user.id,
-                    name: user.name,
-                    role: user.role,
+                    id: userDB.id,
+                    name: userDB.name,
+                    role: userDB.role,
                     token: accessToken
                 }).status(201)
             }
