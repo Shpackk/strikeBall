@@ -1,19 +1,15 @@
 const Sequelize = require('sequelize')
 const db = require('../config/database')
-const User = require('../models/User')
 
-const Team = db.define('team', {
-    teamName: {
-        type: Sequelize.STRING,
+module.exports = db.define('roles', {
+    id: {
+        type: Sequelize.INTEGER,
+        autoIncrement: true,
         primaryKey: true,
         allowNull: false
     },
-    players: {
+    role: {
         type: Sequelize.STRING,
         allowNull: false
     }
 })
-
-// Team.hasMany(User)
-module.exports = Team
-
