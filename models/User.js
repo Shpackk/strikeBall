@@ -8,6 +8,14 @@ const User = db.define('user', {
         primaryKey: true,
         allowNull: false
     },
+    facebookId: {
+        type: Sequelize.STRING,
+        allowNull: true,
+    },
+    googleId: {
+        type: Sequelize.STRING,
+        allowNull: true
+    },
     email: {
         type: Sequelize.STRING,
         allowNull: false,
@@ -22,7 +30,11 @@ const User = db.define('user', {
     },
     password: {
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: true
+    },
+    picture: {
+        type: Sequelize.STRING,
+        allowNull: true
     }
 })
 

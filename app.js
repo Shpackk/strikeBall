@@ -5,15 +5,19 @@ const PORT = process.env.PORT || 3000
 const db = require('./config/database')
 const userRoutes = require('./routes/UserRoutes')
 const teamRoutes = require('./routes/TeamRoutes')
+const authRoutes = require('./routes/authRoutes')
 const errorHandler = require('./middleware/errorHandler')
 
-app.use(passport.initialize());
+
+app.set('view engine', 'ejs')
+app.use(express.urlencoded({ extended: true }))
+app.use(passport.initialize())
 app.use(express.static('static'))
 app.use(express.json())
 app.use(userRoutes)
 app.use(teamRoutes)
+app.use(authRoutes)
 app.use(errorHandler)
-
 
 db.sync()
     .then(() => console.log('DB is synced!'))

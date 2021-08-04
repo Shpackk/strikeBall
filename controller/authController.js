@@ -5,13 +5,12 @@ const check = require('../middleware/inputVerify')
 
 module.exports.createUser = async (req, res, next) => {
     try {
-        const { user } = req.body
+        const user = req.body
         check.inputValidation(user)
-
-        const checkUser = await dbRequest.findOneByName(user.name)
+        const checkUser = await dbRequest.findOneUser(user)
         if (!checkUser) {
             const hashedPassword = await bcrypt.hash(user.password, 10)
-            dbRequest.writeUser(user.name, user.role, hashedPassword, user.email)
+            dbRequest.createUser(user.name, user.role, hashedPassword, user.email)
                 .then(user => {
                     const accessToken = token.sign(user.dataValues)
                     res.json({
@@ -27,28 +26,31 @@ module.exports.createUser = async (req, res, next) => {
             throw error
         }
     } catch (error) {
-        console.log(error)
         next(error)
     }
 }
 
-module.exports.loginUser = (req, res, next) => {
-    const { user } = req.body
-    check.inputValidation(user)
-    dbRequest.findOneByName(user.name)
-        .then(userDB => {
-            const auth = bcrypt.compare(user.password, userDB.password)
-            if (auth) {
-                const accessToken = token.sign(userDB.dataValues)
-                res.json({
-                    id: userDB.id,
-                    name: userDB.name,
-                    role: userDB.role,
-                    token: accessToken
-                }).status(201)
+module.exports.loginUser = async (req, res, next) => {
+    const user = req.body
+    try {
+        check.inputValidation(user)
+        const userDB = await dbRequest.findOneByName(user.name)
+        const auth = await bcrypt.compare(user.password, userDB.password)
+        if (auth) {
+            const accessToken = token.sign(userDB.dataValues)
+            res.json({
+                id: userDB.id,
+                name: userDB.name,
+                role: userDB.role,
+                token: accessToken
+            }).status(201)
+        } else {
+            const error = {
+                "msg": "wrong password"
             }
-        }).catch(error => {
-            error.status = 404
-            next(error)
-        })
+            throw error
+        }
+    } catch (error) {
+        next(error)
+    }
 }

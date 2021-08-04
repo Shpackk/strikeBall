@@ -1,11 +1,16 @@
 const Sequelize = require('sequelize')
 const db = require('../config/database')
-const User = require('../models/User')
+// const User = require('../models/User')
 
 const Team = db.define('team', {
-    teamName: {
-        type: Sequelize.STRING,
+    id: {
+        type: Sequelize.INTEGER,
+        autoIncrement: true,
         primaryKey: true,
+        allowNull: false
+    },
+    name: {
+        type: Sequelize.STRING,
         allowNull: false
     },
     players: {

@@ -22,6 +22,18 @@ function errorHandler(err, req, res, next) {
     if (err.msg == "email") {
         res.status(400).json({ "message": "Bad Email" })
     }
+    if (err.msg == "wrong password") {
+        res.status(400).json({
+            "message": "You passed wrong password",
+            "restoreLink": "localhost:3000/user/forgot-password"
+        })
+    }
+    if (err.msg == "missmatch") {
+        res.status(400).json({ "message": "Passwords did not match" })
+    }
+    if (err.msg == "managers") {
+        res.status(404).json({ "message": "No managers yet" })
+    }
 }
 
 module.exports = errorHandler

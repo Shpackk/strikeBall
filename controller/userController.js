@@ -1,29 +1,143 @@
 const dbRequest = require('../userDTO/userDBrequests')
 const check = require('../middleware/inputVerify')
+const token = require('../userDTO/userTokenControll')
+const jwt = require('jsonwebtoken')
+const bcrypt = require('bcrypt')
 
-module.exports.deleteUser = async (req, res, next) => {
-    const { name, role } = req.body
-    check.inputValidation(name, role)
+// to view all users
+async function viewUsers(req, res, next) {
     try {
-        dbRequest.deleteUser(name, role)
-            .then(result => {
-                res.status(202).json(result + " Deleted")
-            })
+        const users = await dbRequest.findAllUsers()
+        res.status(202).json(users)
     } catch (error) {
         error.status = 404
         next(error)
     }
 }
 
-module.exports.patchUser = (req, res, next) => {
+// delete user
+async function deleteUser(req, res, next) {
     const { name, role } = req.body
     check.inputValidation(name, role)
-    dbRequest.updateUser(name, role)
-        .then((result) => {
-            res.status(200).json(result + " Updated");
+    dbRequest.deleteUser(name, role)
+        .then(result => {
+            res.status(202).json(result + " Deleted")
         }).catch(error => {
             error.status = 404
             next(error)
         })
+
+}
+
+// view one user by id
+async function viewOneById(req, res, next) {
+    const userId = req.params.id
+    try {
+        const user = await dbRequest.findOneById(userId)
+        res.status(202).json(user)
+    } catch (error) {
+        next(error)
+    }
+}
+
+//all managers view
+async function viewManagers(req, res, next) {
+    try {
+        const managers = await dbRequest.findAllManagers()
+        if (managers.length != 0) {
+            res.json(managers)
+        }
+        throw error
+    } catch (error) {
+        error.msg = "managers"
+        next(error)
+    }
+}
+
+// update users info 
+async function userInfoUpdate(req, res, next) {
+    // login, avatar, password
+    const userId = req.params.id
+    const user = req.body
+    console.log(user.name)
+    console.log(user.email)
+    console.log(userId)
+
+
+    // check.inputValidation(name)
+    // dbRequest.updateUser(name, activeUserId)
+    //     .then((result) => {
+    //         res.status(200).json(result + " Updated");
+    //     }).catch(error => {
+    //         error.status = 404
+    //         next(error)
+    //     })
+}
+
+async function forgotPassword(req, res, next) {
+    const { email } = req.body
+    check.inputValidation(email)
+    try {
+        const user = await dbRequest.findOneByEmail(email)
+        const accessToken = token.signForReset(user)
+        const link = `localhost:3000/user/reset-password/${accessToken}`
+        console.log(link)
+
+        res.status(201).json({
+            'status': 'Success',
+            'message': 'Link has been sent to your email!',
+            'time': 'Link expires in 15 minutes'
+        })
+    } catch (error) {
+        error.status = 404
+        next(error)
+    }
+}
+
+async function resetPassword(req, res, next) {
+    const { accessToken } = req.params
+    const user = req.body
+    //del id from link
+    try {
+        check.inputValidation(user)
+        const verifiedToken = token.verifyForReset(accessToken)
+        if (verifiedToken) {
+            if (user.newPass == user.confirmPass) {
+                const hashedPassword = await bcrypt.hash(user.confirmPass, 10)
+                await dbRequest.updatePassword(verifiedToken.id, hashedPassword)
+                res.json({
+                    "message": "Your password has been changed successfully "
+                })
+            } else {
+                const error = {
+                    "msg": "missmatch"
+                }
+                throw error
+            }
+        }
+        throw error
+    } catch (error) {
+        next(error)
+    }
+}
+
+async function profile(req, res, next) {
+    try {
+        const user = await dbRequest.findOneById(req.params.id)
+        if (!user) {
+            const error = {
+                'status': 404
+            }
+            throw error
+        }
+        res.status(302).json(user)
+    } catch (error) {
+        next(error)
+    }
+}
+
+module.exports = {
+    viewUsers, userInfoUpdate, deleteUser, viewOneById,
+    viewManagers, forgotPassword, resetPassword, profile
 }
 

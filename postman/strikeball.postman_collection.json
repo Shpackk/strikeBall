@@ -9,13 +9,13 @@
 			"name": "Auth",
 			"item": [
 				{
-					"name": "create user",
+					"name": "signup user",
 					"request": {
 						"method": "POST",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"mike\",\r\n    \"role\":\"manager\"\r\n}",
+							"raw": "{\r\n    \"user\": {\r\n        \"name\": \"admin\",\r\n        \"email\":\"admin@gmail.com\",\r\n        \"role\":\"admin\",\r\n        \"password\":\"admin\"\r\n    }\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -23,14 +23,14 @@
 							}
 						},
 						"url": {
-							"raw": "localhost:3000/user/create",
+							"raw": "localhost:3000/user/signup",
 							"host": [
 								"localhost"
 							],
 							"port": "3000",
 							"path": [
 								"user",
-								"create"
+								"signup"
 							]
 						}
 					},
@@ -43,7 +43,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\":\"mark\",\r\n    \"password\":\"123456789\"\r\n}",
+							"raw": "{\r\n    \"user\":{\r\n        \"name\":\"admin\",\r\n        \"password\":\"admin\"\r\n    }\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -67,59 +67,300 @@
 			]
 		},
 		{
-			"name": "change role",
-			"request": {
-				"method": "PATCH",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n    \"name\":\"mark\",\r\n    \"role\":\"\"\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
+			"name": "Team",
+			"item": [
+				{
+					"name": "Add to Team",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6InVzZXIiLCJyb2xlIjoidXNlciIsImlhdCI6MTYyNzU2NzMyNX0.sGd-TLAPAzhFQgUEtYt08EjvTqLbrXqaRYUs5vX7wVI",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6InVzZXIiLCJyb2xlIjoidXNlciIsImlhdCI6MTYyNzU2NzMyNX0.sGd-TLAPAzhFQgUEtYt08EjvTqLbrXqaRYUs5vX7wVI",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\":\"1\",\r\n    \"team\":\"Blue\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/team/addUser",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"team",
+								"addUser"
+							]
 						}
-					}
+					},
+					"response": []
 				},
-				"url": {
-					"raw": "localhost:3000/user/role",
-					"host": [
-						"localhost"
-					],
-					"port": "3000",
-					"path": [
-						"user",
-						"role"
-					]
+				{
+					"name": "CreateTeam",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6InVzZXIiLCJyb2xlIjoidXNlciIsImlhdCI6MTYyNzU2ODQ1OH0.q2qiYJNKexeINTyiZrFWujdfnBUGoBgc54cZ-x1ExYw",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"teamName\":\"A\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/team/createTeam",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"team",
+								"createTeam"
+							]
+						}
+					},
+					"response": []
 				}
-			},
-			"response": []
+			]
 		},
 		{
-			"name": "delete user",
-			"request": {
-				"method": "DELETE",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"name\":\"tom\"\n}",
-					"options": {
-						"raw": {
-							"language": "json"
+			"name": "UsersRoute",
+			"item": [
+				{
+					"name": "update self info",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OSwibmFtZSI6ImFkbWluIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNjI3OTIwNzgxfQ.p1U7TG6OxyaMrJy9l7QUvxPS3MueFP9HxV-WhyFS86Y",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\":\"admin1\",\r\n    \"email\":\"admin1@google.com\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/user/update",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"user",
+								"update"
+							]
 						}
-					}
-				},
-				"url": {
-					"raw": "localhost:3000/deleteuser",
-					"host": [
-						"localhost"
-					],
-					"port": "3000",
-					"path": [
-						"deleteuser"
-					]
+					},
+					"response": []
 				}
-			},
-			"response": []
+			]
+		},
+		{
+			"name": "Admin routes",
+			"item": [
+				{
+					"name": "view all managers",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OSwibmFtZSI6ImFkbWluIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNjI3OTIwMTM4fQ.zrDpDvL7t0f8JxySGlHy4jiWS8gT_mSJS-ndrpTU6Fc",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "localhost:3000/user/managers",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"user",
+								"managers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "user by id view",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OSwibmFtZSI6ImFkbWluIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNjI3OTIwMzg5fQ.KatNFY8-rykKCSrfQwTDDbr_hJfOSIa0_aImC62vObs",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OSwibmFtZSI6ImFkbWluIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNjI3OTIwMzg5fQ.KatNFY8-rykKCSrfQwTDDbr_hJfOSIa0_aImC62vObs",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\":\"1\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/user/viewOne",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"user",
+								"viewOne"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "all users view",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwibmFtZSI6ImFub3RoZXJ1c2VyIiwicm9sZSI6InVzZXIiLCJpYXQiOjE2Mjc5MTc4MDR9.HjSpJ6qb_iO14KR2ckvhm-ofSgeSXkmP5jA-MKEsatw",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwibmFtZSI6ImFub3RoZXJ1c2VyIiwicm9sZSI6InVzZXIiLCJpYXQiOjE2Mjc5MTc4MDR9.HjSpJ6qb_iO14KR2ckvhm-ofSgeSXkmP5jA-MKEsatw",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/user/viewUsers",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"user",
+								"viewUsers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete user",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwibmFtZSI6ImFub3RoZXJ1c2VyIiwicm9sZSI6InVzZXIiLCJpYXQiOjE2Mjc5MTU5MTd9.krOrZRTu55dKOq4gleoodip8cevQ3Mgrj_ipUfOZNzg",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "token",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwibmFtZSI6ImFub3RoZXJ1c2VyIiwicm9sZSI6InVzZXIiLCJpYXQiOjE2Mjc5MTU5MTd9.krOrZRTu55dKOq4gleoodip8cevQ3Mgrj_ipUfOZNzg",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\":\"another\",\n    \"role\":\"user\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/user/delete",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"user",
+								"delete"
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		}
 	]
 }

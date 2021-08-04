@@ -9,30 +9,30 @@ function createTeam(req, res, next) {
                 msg: `Team ${teamName} created`,
                 team: result
             })
-        }).catch(error => {
-            console.log(error)
-        })
+        }).catch(error => next(error)
+        )
 }
 
-function addToTeam(req, res, next) {
-    const { id, team } = req.body
-    // check for valid input
-    dbRequest.addToTeam(id, team)
-        .then(result => {
-            res.json({
-                msg: result
-            })
-        })
+async function addToTeam(req, res, next) {
+    const { userId } = req.body
+    const teamId = req.params.id
+    try {
+        const result = await dbRequest.addToTeam(userId, teamId)
+        res.json({ result })
+    } catch (error) {
+        next(error)
+    }
 }
-function deleteFromTeam(req, res, next) {
-    const { id, team } = req.body
-    // check for valid input
-    dbRequest.addToTeam(id, team)
-        .then(result => {
-            res.json({
-                msg: result
-            })
-        })
+async function deleteFromTeam(req, res, next) {
+    const { userId } = req.body
+    const teamId = req.params.id
+    try {
+        const result = await dbRequest.deleteFromTeam(userId, teamId)
+        res.json({ result })
+    } catch (error) {
+        next(error)
+    }
 }
+
 
 module.exports = { addToTeam, deleteFromTeam, createTeam }

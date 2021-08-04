@@ -1,5 +1,3 @@
-const Role = require('../models/Roles')
-
 function inputValidation(user) {
     const checkResult = badInput(user)
     if (checkResult) {
@@ -11,9 +9,11 @@ function inputValidation(user) {
 
 
 function badInput(user) {
-    const namePattern = /[a-z0-9]{5,}/
-    if (namePattern.test(user.name) == false) {
-        return "name"
+    const namePattern = /[a-z0-9]{2,}/
+    if (user.hasOwnProperty('name')) {
+        if (namePattern.test(user.name) == false) {
+            return "name"
+        }
     }
     if (user.hasOwnProperty('role')) {
         if (user.role == "") {
@@ -24,7 +24,6 @@ function badInput(user) {
     if (user.hasOwnProperty('password')) {
         if (user.password.length < 5) {
             return "password"
-            // add (if password)
         }
     }
     if (user.hasOwnProperty('email')) {
@@ -33,7 +32,6 @@ function badInput(user) {
             return "email"
         }
     }
-
     return false
 }
 

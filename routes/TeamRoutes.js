@@ -1,14 +1,16 @@
 const { Router } = require('express');
 const passport = require('passport');
-const TeamController = require('../controller/teamController')
+const teamController = require('../controller/teamController')
 require('../config/passportJWT')
 const router = Router();
 
 
-router.post('/team/createTeam', passport.authenticate('jwt', { session: false }), TeamController.createTeam)
+// router.get('/team/view')
 
-router.patch('/team/addUser', passport.authenticate('jwt', { session: false }), TeamController.addToTeam)
+router.post('/team/createTeam', passport.authenticate('jwt', { session: false }), teamController.createTeam)
 
-router.delete('/team/deleteUser', passport.authenticate('jwt', { session: false }), TeamController.deleteFromTeam)
+router.patch('/team/:id/add', passport.authenticate('jwt', { session: false }), teamController.addToTeam)
+
+router.delete('/team/:id/delete', passport.authenticate('jwt', { session: false }), teamController.deleteFromTeam)
 
 module.exports = router;
