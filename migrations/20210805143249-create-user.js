@@ -1,23 +1,16 @@
 'use strict';
-
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    /**
-     * Add altering commands here.
-     *
-     * Example:
-     * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
-     */
-    await queryInterface.createTable('users', {
+    await queryInterface.createTable('Users', {
       id: {
-        type: Sequelize.INTEGER,
+        allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        allowNull: false
+        type: Sequelize.INTEGER
       },
       facebookId: {
         type: Sequelize.STRING,
-        allowNull: true,
+        allowNull: true
       },
       googleId: {
         type: Sequelize.STRING,
@@ -25,7 +18,7 @@ module.exports = {
       },
       email: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: false
       },
       name: {
         type: Sequelize.STRING,
@@ -33,7 +26,7 @@ module.exports = {
       },
       role: {
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: true
       },
       password: {
         type: Sequelize.STRING,
@@ -42,18 +35,18 @@ module.exports = {
       picture: {
         type: Sequelize.STRING,
         allowNull: true
+      },
+      createdAt: {
+        allowNull: false,
+        type: Sequelize.DATE
+      },
+      updatedAt: {
+        allowNull: false,
+        type: Sequelize.DATE
       }
-
-    })
+    });
   },
-
   down: async (queryInterface, Sequelize) => {
-    /**
-     * Add reverting commands here.
-     *
-     * Example:
-     * await queryInterface.dropTable('users');
-     */
-    await queryInterface.dropTable('users');
+    await queryInterface.dropTable('Users');
   }
 };
