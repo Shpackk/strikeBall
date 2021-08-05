@@ -3,23 +3,23 @@ const {
   Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  class Team extends Model {
+  class Banlist extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
-    static associate({ User }) {
+    static associate(models) {
       // define association here
-      this.hasMany(User)
     }
   };
-  Team.init({
-    name: DataTypes.STRING,
-    players: DataTypes.STRING
+  Banlist.init({
+    //ban through email
+    userId: DataTypes.INTEGER,
+    description: DataTypes.STRING
   }, {
     sequelize,
-    modelName: 'Team',
+    modelName: 'Banlist',
   });
-  return Team;
+  return Banlist;
 };

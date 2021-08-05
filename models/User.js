@@ -1,41 +1,30 @@
-const Sequelize = require('sequelize')
-const db = require('../config/database')
-// db user model
-const User = db.define('user', {
-    id: {
-        type: Sequelize.INTEGER,
-        autoIncrement: true,
-        primaryKey: true,
-        allowNull: false
-    },
-    facebookId: {
-        type: Sequelize.STRING,
-        allowNull: true,
-    },
-    googleId: {
-        type: Sequelize.STRING,
-        allowNull: true
-    },
-    email: {
-        type: Sequelize.STRING,
-        allowNull: false,
-    },
-    name: {
-        type: Sequelize.STRING,
-        allowNull: false
-    },
-    role: {
-        type: Sequelize.STRING,
-        allowNull: false
-    },
-    password: {
-        type: Sequelize.STRING,
-        allowNull: true
-    },
-    picture: {
-        type: Sequelize.STRING,
-        allowNull: true
+'use strict';
+const {
+  Model
+} = require('sequelize');
+module.exports = (sequelize, DataTypes) => {
+  class User extends Model {
+    /**
+     * Helper method for defining associations.
+     * This method is not a part of Sequelize lifecycle.
+     * The `models/index` file will call this method automatically.
+     */
+    static associate({ Team }) {
+      // define association here
+      this.belongsTo(Team)
     }
-})
-
-module.exports = User
+  };
+  User.init({
+    facebookId: DataTypes.STRING,
+    googleId: DataTypes.STRING,
+    email: DataTypes.STRING,
+    name: DataTypes.STRING,
+    role: DataTypes.STRING,
+    password: DataTypes.STRING,
+    picture: DataTypes.STRING
+  }, {
+    sequelize,
+    modelName: 'User',
+  });
+  return User;
+};
