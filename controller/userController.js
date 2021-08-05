@@ -1,7 +1,8 @@
 const dbRequest = require('../userDTO/userDBrequests')
 const check = require('../middleware/inputVerify')
 const token = require('../userDTO/userTokenControll')
-const jwt = require('jsonwebtoken')
+const mailer = require('../service/nodeMailer')
+// const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 
 // to view all users
@@ -34,8 +35,13 @@ async function viewOneById(req, res, next) {
     const userId = req.params.id
     try {
         const user = await dbRequest.findOneById(userId)
+        if (user == null) {
+            throw error
+        }
         res.status(202).json(user)
     } catch (error) {
+        console.log('WTF')
+        error.status = 404
         next(error)
     }
 }
@@ -46,8 +52,9 @@ async function viewManagers(req, res, next) {
         const managers = await dbRequest.findAllManagers()
         if (managers.length != 0) {
             res.json(managers)
+        } else {
+            throw error
         }
-        throw error
     } catch (error) {
         error.msg = "managers"
         next(error)
@@ -57,10 +64,7 @@ async function viewManagers(req, res, next) {
 // update users info 
 async function userInfoUpdate(req, res, next) {
     // login, avatar, password
-    const userId = req.params.id
-    const user = req.body
-    console.log(user.name)
-    console.log(user.email)
+    const userId = req.user.id
     console.log(userId)
 
 
@@ -80,9 +84,8 @@ async function forgotPassword(req, res, next) {
     try {
         const user = await dbRequest.findOneByEmail(email)
         const accessToken = token.signForReset(user)
-        const link = `localhost:3000/user/reset-password/${accessToken}`
-        console.log(link)
-
+        const link = `Follow to reset password localhost:3000/user/reset-password/${accessToken}`
+        mailer.sendLink(email, link)
         res.status(201).json({
             'status': 'Success',
             'message': 'Link has been sent to your email!',
@@ -136,8 +139,48 @@ async function profile(req, res, next) {
     }
 }
 
+async function getRequests(req, res, next) {
+    try {
+        const requests = await dbRequest.extractRequests()
+        res.json(requests)
+    } catch (error) {
+        next(error)
+    }
+}
+
+async function populateRequest(req, res, next) {
+    const requestId = req.params.id
+    const approved = req.body.approved
+    const message = `Your request is answered by ${approved}`
+    try {
+        const request = await dbRequest.findRequest(requestId)
+        if (!request) {
+            throw error = {
+                status: 404
+            }
+        }
+        switch (approved) {
+            case true:
+                await dbRequest.acceptRequest(requestId, request.dataValues.userName, request.dataValues.userPass, request.dataValues.userEmail)
+                break;
+            case false:
+                await dbRequest.deleteRequest(requestId)
+                break;
+            default:
+                break;
+        }
+        mailer.sandMail(request.dataValues.userEmail, 'Registration', message)
+        res.json(`Approval for ${request.dataValues.userEmail} is ${approved}`)
+
+    } catch (error) {
+        next(error)
+    }
+
+}
+
 module.exports = {
     viewUsers, userInfoUpdate, deleteUser, viewOneById,
-    viewManagers, forgotPassword, resetPassword, profile
+    viewManagers, forgotPassword, resetPassword, profile,
+    getRequests, populateRequest
 }
 
