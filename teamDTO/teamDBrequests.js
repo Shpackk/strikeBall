@@ -1,10 +1,9 @@
-const Team = require('../models/Team')
+const Team = require('../models/team')
 
-
-async function createTeam(teamName) {
+async function createTeam(name) {
     return await Team.create({
-        players: '',
-        teamName
+        name,
+        players: ''
     })
 }
 async function addToTeam(userId, teamId) {

@@ -9,22 +9,26 @@ require('../config/passportJWT')
 require('../config/passportGoogle')
 
 
-router.get('/user/:id', passport.authenticate('jwt', { session: false },), userController.viewOneById)
-
 router.get('/user/delete', passport.authenticate('jwt', { session: false },), getController.deleteUser)// for page view
 
-router.get('/user/viewUsers', passport.authenticate('jwt', { session: false },), userController.viewUsers)
+router.get('/users/all', passport.authenticate('jwt', { session: false }), userController.viewUsers)
 
-router.get('/user/managers', passport.authenticate('jwt', { session: false },), userController.viewManagers)
+router.get('/users/manager', passport.authenticate('jwt', { session: false },), userController.viewManagers)// fix
 
-router.get('/user/profile/:id', passport.authenticate('jwt', { session: false },), userController.profile) // CURR
+router.get('/requests', passport.authenticate('jwt', { session: false },), userController.getRequests)
 
 router.post('/user/forgot-password', userController.forgotPassword)
 
 router.post('/user/reset-password/:accessToken', userController.resetPassword)
 
-router.delete('/user/delete', passport.authenticate('jwt', { session: false },), userController.deleteUser)
+router.delete('/user/delete/', passport.authenticate('jwt', { session: false },), userController.deleteUser)
 
-router.patch('/user/:id/update', passport.authenticate('jwt', { session: false },), userController.userInfoUpdate)
+router.patch('/user/update', passport.authenticate('jwt', { session: false },), userController.userInfoUpdate)
+
+router.get('/user/profile/:id', passport.authenticate('jwt', { session: false },), userController.profile)
+
+router.get('/user/:id', passport.authenticate('jwt', { session: false },), userController.viewOneById)
+
+router.patch('/requests/:id', passport.authenticate('jwt', { session: false },), userController.populateRequest)
 
 module.exports = router;

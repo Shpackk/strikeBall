@@ -2,11 +2,12 @@ const express = require('express')
 const app = express()
 const passport = require('passport')
 const PORT = process.env.PORT || 3000
-const db = require('./config/database')
+const db = require('./models/index')
 const userRoutes = require('./routes/UserRoutes')
 const teamRoutes = require('./routes/TeamRoutes')
 const authRoutes = require('./routes/authRoutes')
 const errorHandler = require('./middleware/errorHandler')
+require('dotenv').config()
 
 
 app.set('view engine', 'ejs')
@@ -19,7 +20,7 @@ app.use(teamRoutes)
 app.use(authRoutes)
 app.use(errorHandler)
 
-db.sync()
+db.sequelize.sync()
     .then(() => console.log('DB is synced!'))
     .catch(err => console.log(err))
 
