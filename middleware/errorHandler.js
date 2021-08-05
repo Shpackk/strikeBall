@@ -34,6 +34,9 @@ function errorHandler(err, req, res, next) {
     if (err.msg == "managers") {
         res.status(404).json({ "message": "No managers yet" })
     }
+    if (err.msg == "applied") {
+        res.status(409).json({ "message": "You already applied. Please wait until we approve." })
+    }
 }
 
 module.exports = errorHandler
