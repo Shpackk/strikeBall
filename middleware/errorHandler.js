@@ -38,7 +38,10 @@ function errorHandler(err, req, res, next) {
         res.status(409).json({ "message": "You already applied. Please wait until we approve." })
     }
     if (err.msg == 'already in team') {
-        res.status(409).json({ "message": "You already in team. Please leave previous team to apply" })
+        res.status(409).json({ "message": "You already in this team. Switch team or request for leaving" })
+    }
+    if (err.msg == "in team") {
+        res.status(409).json({ "message": "You are not in any team. Nothing to leave" })
     }
 }
 

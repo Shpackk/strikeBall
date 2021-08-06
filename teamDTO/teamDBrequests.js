@@ -72,7 +72,7 @@ async function checkUserInTeam(userId, teamId) {
             }
             return true
         })
-        if (allPlayers.includes(userId)) {
+        if (allPlayers.includes(userId.toString())) {
             return "player is already in this team"
         }
         return false

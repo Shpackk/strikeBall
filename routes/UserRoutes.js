@@ -25,6 +25,10 @@ router.delete('/user/delete/', passport.authenticate('jwt', { session: false },)
 
 router.patch('/user/update', passport.authenticate('jwt', { session: false },), userController.userInfoUpdate)
 
+router.get('/user/requests', passport.authenticate('jwt', { session: false },), userController.userOwnRequests)
+
+router.delete('/user/requests/delete/:id', passport.authenticate('jwt', { session: false },), userController.userDeleteRequest)
+
 router.get('/user/profile/:id', passport.authenticate('jwt', { session: false },), userController.profile)
 
 router.get('/user/:id', passport.authenticate('jwt', { session: false },), userController.viewOneById)

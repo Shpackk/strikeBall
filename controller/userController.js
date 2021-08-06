@@ -4,7 +4,7 @@ const token = require('../userDTO/userTokenControll')
 const mailer = require('../service/nodeMailer')
 // const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
-const db = require('../models')
+// const db = require('../models')
 
 // to view all users
 async function viewUsers(req, res, next) {
@@ -174,7 +174,7 @@ async function populateRequest(req, res, next) {
             mailer.sandMail(request.dataValues.userEmail, 'Registration', message)
             res.json(`Approval for ${request.dataValues.userEmail} is ${approved}`)
         }
-        if (request.dataValues.requestType != 'manager') {
+        if (request.dataValues.requestType.includes('join')) {
             switch (approved) {
                 case true:
                     await dbRequest.acceptTeamJoin(requestId, request.dataValues.userEmail, request.dataValues.requestType)
@@ -185,7 +185,21 @@ async function populateRequest(req, res, next) {
                 default:
                     break;
             }
-            mailer.sandMail(request.dataValues.userEmail, 'Team Join', message)
+            mailer.sandMail(request.dataValues.userEmail, 'Request For Joining A Team', message)
+            res.json(`Approval for ${request.dataValues.userEmail} is ${approved}`)
+        }
+        if (request.dataValues.requestType.includes('leave')) {
+            switch (approved) {
+                case true:
+                    await dbRequest.acceptTeamLeave(requestId, request.dataValues.userEmail, request.dataValues.requestType)
+                    break;
+                case false:
+                    await dbRequest.deleteRequest(requestId)
+                    break;
+                default:
+                    break;
+            }
+            mailer.sandMail(request.dataValues.userEmail, 'Request For Leaving A Team', message)
             res.json(`Approval for ${request.dataValues.userEmail} is ${approved}`)
         }
 
@@ -195,9 +209,40 @@ async function populateRequest(req, res, next) {
 
 }
 
+async function userOwnRequests(req, res, next) {
+    try {
+        const request = await dbRequest.extractUserRequest(req.user.id)
+        if (request.length < 1) {
+            res.status(201).json({
+                "Msg": "You have no active requests"
+            })
+        }
+        res.status(201).json(request)
+    } catch (error) {
+        next(error)
+    }
+}
+
+async function userDeleteRequest(req, res, next) {
+    const requestId = req.params.id
+    try {
+        const request = await dbRequest.findRequest(requestId)
+        if (request) {
+            await dbRequest.deleteRequest(requestId)
+            res.status(200).json({
+                "msg": "Request is sucessfully deleted"
+            })
+        } else {
+            throw error
+        }
+    } catch (error) {
+        error.status = 404
+        next(error)
+    }
+}
 module.exports = {
     viewUsers, userInfoUpdate, deleteUser, viewOneById,
     viewManagers, forgotPassword, resetPassword, profile,
-    getRequests, populateRequest
+    getRequests, populateRequest, userOwnRequests, userDeleteRequest
 }
 

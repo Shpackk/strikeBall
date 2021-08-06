@@ -11,6 +11,6 @@ router.post('/team/createTeam', passport.authenticate('jwt', { session: false })
 
 router.patch('/team/join/:id', passport.authenticate('jwt', { session: false }), teamController.joinTeam)
 
-router.delete('/team/leave/:id', passport.authenticate('jwt', { session: false }), teamController.deleteFromTeam)
+router.delete('/team/leave/:id', passport.authenticate('jwt', { session: false }), teamController.leaveTeam)
 
 module.exports = router;

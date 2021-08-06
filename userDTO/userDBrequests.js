@@ -146,7 +146,8 @@ async function newRequest(user, type) {
                 userEmail: user.email,
                 userName: user.name,
                 userPass: user.password,
-                requestType: type
+                requestType: type,
+                UserId: user.id
             })
         }
         if (type != 'manager') {
@@ -154,7 +155,8 @@ async function newRequest(user, type) {
                 status: 'active',
                 userEmail: user.email,
                 userName: user.name,
-                requestType: type
+                requestType: type,
+                UserId: user.id
             })
         }
     } catch (error) {
@@ -206,6 +208,23 @@ async function deleteRequest(reqId) {
 
 async function acceptTeamJoin(requestId, userEmail, requestType) {
     const teamId = requestType.match(/\d+/)[0]
+    try {
+        await deleteRequest(requestId)
+        const user = await User.update({ TeamId: teamId }, {
+            where: {
+                email: userEmail
+            },
+            returning: true
+        })
+        await checkInAnotherTeam(teamId, user[1][0].dataValues.id)
+        return await teamDbRequest.addToTeam(user[1][0].dataValues.id, teamId)
+    } catch (error) {
+        throw error
+    }
+}
+
+async function acceptTeamLeave(requestId, userEmail, requestType) {
+    const teamId = requestType.match(/\d+/)[0]
 
     try {
         await deleteRequest(requestId)
@@ -215,17 +234,49 @@ async function acceptTeamJoin(requestId, userEmail, requestType) {
             },
             returning: true
         })
-        return await teamDbRequest.addToTeam(user[1][0].dataValues.id, teamId)
+        return await teamDbRequest.deleteFromTeam(user[1][0].dataValues.id, teamId)
     } catch (error) {
         throw error
     }
 }
 
+async function extractUserRequest(userId) {
+    try {
+        return await Request.findAll({
+            where: {
+                UserId: userId
+            },
+            attributes: ['id', 'status', 'requestType']
+        })
+    } catch (error) {
+        throw error
+    }
 
+}
+
+async function checkInAnotherTeam(teamId, userId) {
+    if (teamId == 1) {
+        const isInTeam = await teamDbRequest.checkUserInTeam(userId, 2)
+        if (isInTeam) {
+            await teamDbRequest.deleteFromTeam(userId, 2)
+            return
+        }
+        return
+    }
+    if (teamId == 2) {
+        const isInTeam = await teamDbRequest.checkUserInTeam(userId, 1)
+        if (isInTeam) {
+            await teamDbRequest.deleteFromTeam(userId, 1)
+            return
+        }
+        return
+    }
+}
 
 module.exports = {
     createUser, deleteUser, updateUser, findOneById, findOneUser,
     createUserGoogle, findAllUsers, findOneByName, findAllManagers,
     findOneByEmail, updatePassword, newRequest, extractRequests,
-    acceptRequest, deleteRequest, findRequest, acceptTeamJoin
+    acceptRequest, deleteRequest, findRequest, acceptTeamJoin,
+    acceptTeamLeave, extractUserRequest
 }
