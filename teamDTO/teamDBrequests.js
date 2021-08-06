@@ -1,10 +1,14 @@
-const Team = require('../models/team')
+const { Team, Request } = require('../models/index')
 
 async function createTeam(name) {
-    return await Team.create({
-        name,
-        players: ''
-    })
+    try {
+        return await Team.create({
+            name,
+            players: ''
+        })
+    } catch (error) {
+        throw error
+    }
 }
 async function addToTeam(userId, teamId) {
     const teamDb = await Team.findOne({
@@ -53,4 +57,28 @@ async function deleteFromTeam(userId, teamId) {
     return `Player ${userId} left team ${teamId}`
 }
 
-module.exports = { addToTeam, deleteFromTeam, createTeam }
+async function checkUserInTeam(userId, teamId) {
+    try {
+        const teamDb = await Team.findOne({
+            where: {
+                id: teamId
+            },
+            attributes: ['players']
+        })
+
+        const allPlayers = Array.from(teamDb.players).filter(i => {
+            if (i == ',') {
+                return false
+            }
+            return true
+        })
+        if (allPlayers.includes(userId)) {
+            return "player is already in this team"
+        }
+        return false
+    } catch (error) {
+        throw error
+    }
+}
+
+module.exports = { addToTeam, deleteFromTeam, createTeam, checkUserInTeam }

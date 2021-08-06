@@ -9,8 +9,8 @@ const router = Router();
 
 router.post('/team/createTeam', passport.authenticate('jwt', { session: false }), teamController.createTeam)
 
-router.patch('/team/:id/add', passport.authenticate('jwt', { session: false }), teamController.addToTeam)
+router.patch('/team/join/:id', passport.authenticate('jwt', { session: false }), teamController.joinTeam)
 
-router.delete('/team/:id/delete', passport.authenticate('jwt', { session: false }), teamController.deleteFromTeam)
+router.delete('/team/leave/:id', passport.authenticate('jwt', { session: false }), teamController.deleteFromTeam)
 
 module.exports = router;

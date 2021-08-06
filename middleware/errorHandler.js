@@ -37,6 +37,9 @@ function errorHandler(err, req, res, next) {
     if (err.msg == "applied") {
         res.status(409).json({ "message": "You already applied. Please wait until we approve." })
     }
+    if (err.msg == 'already in team') {
+        res.status(409).json({ "message": "You already in team. Please leave previous team to apply" })
+    }
 }
 
 module.exports = errorHandler

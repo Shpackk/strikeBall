@@ -1,7 +1,7 @@
-const { request } = require('express')
 const Sequelize = require('sequelize')
 const Op = Sequelize.Op
 const { User, Request } = require('../models/index')
+const teamDbRequest = require('../teamDTO/teamDBrequests')
 
 // for users JWT signup
 async function createUser(name, role, password, email) {
@@ -93,12 +93,16 @@ async function findOneByName(name) {
 
 // to view one users info
 async function findOneById(id) {
-    return await User.findOne({
-        where: {
-            id
-        },
-        attributes: ['id', 'email', 'name', 'role', 'picture']
-    })
+    try {
+        return await User.findOne({
+            where: {
+                id
+            },
+            attributes: ['id', 'email', 'name', 'role', 'picture']
+        })
+    } catch (error) {
+        throw error
+    }
 }
 
 //find by email for password reset
@@ -121,7 +125,7 @@ async function updatePassword(id, password) {
     })
 }
 
-// create request for manager's registration 
+// create request
 async function newRequest(user, type) {
     try {
         const found = await Request.findOne({
@@ -135,15 +139,23 @@ async function newRequest(user, type) {
             }
             throw error
         }
-        const createdRequest = await Request.create({
-            status: 'active',
-            userEmail: user.email,
-            userName: user.name,
-            userPass: user.password,
-            requestType: type
-        })
-        if (createdRequest) {
-            return "You succesfully applied! We will approve and send you an email"
+
+        if (type == 'manager') {
+            await Request.create({
+                status: 'active',
+                userEmail: user.email,
+                userName: user.name,
+                userPass: user.password,
+                requestType: type
+            })
+        }
+        if (type != 'manager') {
+            await Request.create({
+                status: 'active',
+                userEmail: user.email,
+                userName: user.name,
+                requestType: type
+            })
         }
     } catch (error) {
         throw error
@@ -154,7 +166,7 @@ async function extractRequests() {
     try {
         const requests = await Request.findAll({
             //if we delete request after decission, no sense to pass 'approved' column
-            attributes: ['id', 'status', 'userEmail', 'userName', 'requestType']
+            attributes: ['id', 'status', 'userEmail', 'requestType']
         })
         return requests
     } catch (error) {
@@ -168,7 +180,7 @@ async function findRequest(reqId) {
             where: {
                 id: reqId
             },
-            attributes: ['userEmail', 'userName', 'userPass']
+            attributes: ['userEmail', 'userName', 'userPass', 'requestType']
         })
     } catch (error) {
         throw error
@@ -192,6 +204,22 @@ async function deleteRequest(reqId) {
     })
 }
 
+async function acceptTeamJoin(requestId, userEmail, requestType) {
+    const teamId = requestType.match(/\d+/)[0]
+
+    try {
+        await deleteRequest(requestId)
+        const user = await User.update({ TeamId: teamId }, {
+            where: {
+                email: userEmail
+            },
+            returning: true
+        })
+        return await teamDbRequest.addToTeam(user[1][0].dataValues.id, teamId)
+    } catch (error) {
+        throw error
+    }
+}
 
 
 
@@ -199,5 +227,5 @@ module.exports = {
     createUser, deleteUser, updateUser, findOneById, findOneUser,
     createUserGoogle, findAllUsers, findOneByName, findAllManagers,
     findOneByEmail, updatePassword, newRequest, extractRequests,
-    acceptRequest, deleteRequest, findRequest
+    acceptRequest, deleteRequest, findRequest, acceptTeamJoin
 }

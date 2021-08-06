@@ -4,6 +4,7 @@ const token = require('../userDTO/userTokenControll')
 const mailer = require('../service/nodeMailer')
 // const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
+const db = require('../models')
 
 // to view all users
 async function viewUsers(req, res, next) {
@@ -159,18 +160,34 @@ async function populateRequest(req, res, next) {
                 status: 404
             }
         }
-        switch (approved) {
-            case true:
-                await dbRequest.acceptRequest(requestId, request.dataValues.userName, request.dataValues.userPass, request.dataValues.userEmail)
-                break;
-            case false:
-                await dbRequest.deleteRequest(requestId)
-                break;
-            default:
-                break;
+        if (request.dataValues.requestType == 'manager') {
+            switch (approved) {
+                case true:
+                    await dbRequest.acceptRequest(requestId, request.dataValues.userName, request.dataValues.userPass, request.dataValues.userEmail)
+                    break;
+                case false:
+                    await dbRequest.deleteRequest(requestId)
+                    break;
+                default:
+                    break;
+            }
+            mailer.sandMail(request.dataValues.userEmail, 'Registration', message)
+            res.json(`Approval for ${request.dataValues.userEmail} is ${approved}`)
         }
-        mailer.sandMail(request.dataValues.userEmail, 'Registration', message)
-        res.json(`Approval for ${request.dataValues.userEmail} is ${approved}`)
+        if (request.dataValues.requestType != 'manager') {
+            switch (approved) {
+                case true:
+                    await dbRequest.acceptTeamJoin(requestId, request.dataValues.userEmail, request.dataValues.requestType)
+                    break;
+                case false:
+                    await dbRequest.deleteRequest(requestId)
+                    break;
+                default:
+                    break;
+            }
+            mailer.sandMail(request.dataValues.userEmail, 'Team Join', message)
+            res.json(`Approval for ${request.dataValues.userEmail} is ${approved}`)
+        }
 
     } catch (error) {
         next(error)
