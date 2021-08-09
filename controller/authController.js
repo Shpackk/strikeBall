@@ -1,5 +1,6 @@
 const bcrypt = require('bcrypt')
 const dbRequest = require('../userDTO/userDBrequests')
+const banDbRequest = require('../banDTO/banRequests')
 const token = require('../userDTO/userTokenControll')
 const check = require('../middleware/inputVerify')
 
@@ -48,6 +49,10 @@ module.exports.loginUser = async (req, res, next) => {
         if (userDB == null) {
             throw error
         }
+        const isBanned = await banDbRequest.isBanned(userDB.email)
+        if (isBanned != null) {
+            res.json(`${userDB.email}, we're sorry, but you are banned from our service`)
+        }
         const auth = await bcrypt.compare(user.password, userDB.password)
         if (auth) {
             const accessToken = token.sign(userDB.dataValues)
@@ -64,7 +69,6 @@ module.exports.loginUser = async (req, res, next) => {
             throw error
         }
     } catch (error) {
-        error.status = 404
         next(error)
     }
 }
