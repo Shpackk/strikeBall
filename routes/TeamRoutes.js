@@ -9,8 +9,12 @@ const router = Router();
 
 router.post('/team/createTeam', passport.authenticate('jwt', { session: false }), teamController.createTeam)
 
-router.patch('/team/join/:id', passport.authenticate('jwt', { session: false }), teamController.joinTeam)
+router.patch('/team/:id/join', passport.authenticate('jwt', { session: false }), teamController.joinTeam)
 
-router.delete('/team/leave/:id', passport.authenticate('jwt', { session: false }), teamController.leaveTeam)
+router.delete('/team/:id/leave', passport.authenticate('jwt', { session: false }), teamController.leaveTeam)
+
+router.get('/team/:id/players', passport.authenticate('jwt', { session: false },), teamController.viewPlayersInTeam)
+
+router.delete('/team/:id/kick', passport.authenticate('jwt', { session: false },), teamController.kickPlayerFromTeam)
 
 module.exports = router;
