@@ -1,6 +1,6 @@
 const Sequelize = require('sequelize')
 const Op = Sequelize.Op
-const { User, Request } = require('../models/index')
+const { User, Request, Team } = require('../models/index')
 const teamDbRequest = require('../teamDTO/teamDBrequests')
 
 // for users JWT signup
@@ -15,7 +15,10 @@ async function createUser(name, role, password, email) {
 
 //for all users view
 async function findAllUsers() {
-    return await User.findAll({ attributes: ['id', 'email', 'name', 'role',] })
+    return await User.findAll({
+        attributes: ['id', 'email', 'name', 'role',],
+        include: [{ model: Team, attributes: ['id', 'name'] }]
+    })
 }
 
 //find all managers
@@ -98,7 +101,8 @@ async function findOneById(id) {
             where: {
                 id
             },
-            attributes: ['id', 'email', 'name', 'role', 'picture']
+            attributes: ['id', 'email', 'name', 'role', 'picture'],
+            include: [{ model: Team, attributes: ['id', 'name'] }]
         })
     } catch (error) {
         throw error
@@ -273,10 +277,23 @@ async function checkInAnotherTeam(teamId, userId) {
     }
 }
 
+async function getUsersByTeam(teamId) {
+    const users = await Team.findOne({
+        where: {
+            id: teamId
+        },
+        include: [{ model: User, attributes: ['id', 'name', 'email'] }]
+    })
+    if (users.length < 1) {
+        return "No players in this team"
+    }
+    return users.dataValues.Users
+}
+
 module.exports = {
     createUser, deleteUser, updateUser, findOneById, findOneUser,
     createUserGoogle, findAllUsers, findOneByName, findAllManagers,
     findOneByEmail, updatePassword, newRequest, extractRequests,
     acceptRequest, deleteRequest, findRequest, acceptTeamJoin,
-    acceptTeamLeave, extractUserRequest
+    acceptTeamLeave, extractUserRequest, getUsersByTeam
 }
