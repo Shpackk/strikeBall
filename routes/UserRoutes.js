@@ -35,4 +35,8 @@ router.get('/user/:id', passport.authenticate('jwt', { session: false },), userC
 
 router.patch('/requests/:id', passport.authenticate('jwt', { session: false },), userController.populateRequest)
 
+router.post('/user/:id/ban', passport.authenticate('jwt', { session: false },), userController.banUser)
+
+router.delete('/user/:id/unban', passport.authenticate('jwt', { session: false },), userController.unbanUser)
+
 module.exports = router;
