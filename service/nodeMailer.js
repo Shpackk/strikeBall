@@ -1,9 +1,7 @@
 const nodemailer = require("nodemailer");
 
-async function sandMail(email, topic, message) {
-
-    //--------- Generate test SMTP service account from ethereal.email
-    // const testAccount = await nodemailer.createTestAccount();
+async function sandMail(email, topic, description) {
+    const msg = generateMessage(topic, description)
 
     const transporter = nodemailer.createTransport({
         host: "smtp.ethereal.email",
@@ -15,17 +13,42 @@ async function sandMail(email, topic, message) {
         },
     });
 
-    // send mail with defined transport object
     const info = await transporter.sendMail({
         from: '"StrikeBall Team" <foo@example.com>', // sender address
         to: email, // list of receivers
         subject: topic, // Subject line
-        text: message, // plain text body
+        text: msg, // plain text body
     });
-
     console.log("Message sent: %s", info.messageId);
     console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
-    // Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
 }
 
+function generateMessage(topic, description) {
+    if (topic == 'Ban') {
+        return `We're sorry. You have been banned due to ${description}`
+    }
+    if (topic == "UnBanned") {
+        return `Dear player! Your account has been unbanned due to ${description}`
+    }
+    if (topic == "TeamLeave") {
+        if (description == true) {
+            return `Dear player! You sucessfully left your team`
+        } else {
+            return `Dear player! Sorry but we declined your request to leave`
+        }
+    }
+    if (topic == "TeamJoin") {
+        if (description == true) {
+            return `Dear player, You joined a new team! Good Luck and Have Fun!`
+        }
+        if (description == false) {
+            return `Dear player, we're sorry but your request to join team was declined :(`
+        }
+    }
+}
+
+
+
 module.exports = { sandMail }
+
+
