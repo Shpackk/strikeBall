@@ -40,8 +40,11 @@ function errorHandler(err, req, res, next) {
     if (err.msg == 'already in team') {
         res.status(409).json({ "message": "You already in this team. Switch team or request for leaving" })
     }
-    if (err.msg == "in team") {
-        res.status(409).json({ "message": "You are not in any team. Nothing to leave" })
+    if (err.msg == "not in team") {
+        res.status(409).json({ "message": "You can't leave team you are not in" })
+    }
+    if (err.msg == 'teamkick') {
+        res.status(404).json({ "message": "User not found or he is not in this team" })
     }
 }
 
