@@ -1,5 +1,6 @@
 const dbRequest = require('../teamDTO/teamDBrequests')
 const dbUserRequest = require('../userDTO/userDBrequests')
+const mailer = require('../service/nodeMailer')
 
 async function createTeam(req, res, next) {
     const { teamName } = req.body
@@ -48,7 +49,7 @@ async function leaveTeam(req, res, next) {
         }
         if (checkInTeam == false) {
             const error = {
-                "msg": 'in team'
+                "msg": 'not in team'
             }
             throw error
         }
@@ -57,5 +58,34 @@ async function leaveTeam(req, res, next) {
     }
 }
 
+async function viewPlayersInTeam(req, res, next) {
+    const teamId = req.params.id
+    try {
+        const users = await dbUserRequest.getUsersByTeam(teamId)
+        res.json(users)
+    } catch (error) {
+        next(error)
+    }
+}
 
-module.exports = { joinTeam, leaveTeam, createTeam }
+async function kickPlayerFromTeam(req, res, next) {
+    const teamId = req.params.id
+    const { userId, kickReason } = req.body
+    try {
+        const user = await dbUserRequest.findOneById(userId)
+        const userEmail = user.dataValues.email
+        const checkIn = await dbRequest.checkUserInTeam(userId, teamId)
+        if (checkIn == false) {
+            throw error
+        }
+        await dbRequest.deleteFromTeam(userId, teamId)
+        mailer.sandMail(userEmail, 'Kicked from Team', kickReason)
+        res.json(`User ${user.dataValues.name} sucessfully kicked from team ${teamId}`)
+    } catch (error) {
+        error.msg = "teamkick"
+        next(error)
+    }
+}
+
+
+module.exports = { joinTeam, leaveTeam, createTeam, viewPlayersInTeam, kickPlayerFromTeam }
