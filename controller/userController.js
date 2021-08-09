@@ -1,4 +1,5 @@
 const dbRequest = require('../userDTO/userDBrequests')
+const banDbRequest = require('../banDTO/banRequests')
 const check = require('../middleware/inputVerify')
 const token = require('../userDTO/userTokenControll')
 const mailer = require('../service/nodeMailer')
@@ -41,7 +42,6 @@ async function viewOneById(req, res, next) {
         }
         res.status(202).json(user)
     } catch (error) {
-        console.log('WTF')
         error.status = 404
         next(error)
     }
@@ -152,7 +152,6 @@ async function getRequests(req, res, next) {
 async function populateRequest(req, res, next) {
     const requestId = req.params.id
     const approved = req.body.approved
-    const message = `Your request is answered by ${approved}`
     try {
         const request = await dbRequest.findRequest(requestId)
         if (!request) {
@@ -185,7 +184,7 @@ async function populateRequest(req, res, next) {
                 default:
                     break;
             }
-            mailer.sandMail(request.dataValues.userEmail, 'Request For Joining A Team', message)
+            mailer.sandMail(request.dataValues.userEmail, 'TeamJoin', approved)
             res.json(`Approval for ${request.dataValues.userEmail} is ${approved}`)
         }
         if (request.dataValues.requestType.includes('leave')) {
@@ -199,7 +198,7 @@ async function populateRequest(req, res, next) {
                 default:
                     break;
             }
-            mailer.sandMail(request.dataValues.userEmail, 'Request For Leaving A Team', message)
+            mailer.sandMail(request.dataValues.userEmail, 'TeamLeave', approved)
             res.json(`Approval for ${request.dataValues.userEmail} is ${approved}`)
         }
 
@@ -240,9 +239,58 @@ async function userDeleteRequest(req, res, next) {
         next(error)
     }
 }
+
+async function banUser(req, res, next) {
+    const userId = req.params.id
+    const { description } = req.body
+    try {
+        const user = await dbRequest.findOneById(userId)
+        if (user == null) {
+            const error = {
+                status: 404
+            }
+            throw error
+        }
+        const isBanned = await banDbRequest.isBanned(user.dataValues.email)
+        if (isBanned) {
+            res.json(`User ${user.dataValues.email} is already banned`)
+        } else {
+            await banDbRequest.banUser(userId, description, user.dataValues.email)
+            res.json(`User ${user.dataValues.name} is now baned`)
+            mailer.sandMail(user.dataValues.email, 'Ban', description)
+        }
+    } catch (error) {
+        next(error)
+    }
+}
+
+async function unbanUser(req, res, next) {
+    const userId = req.params.id
+    const { description } = req.body
+    try {
+        const user = await dbRequest.findOneById(userId)
+        if (user == null) {
+            const error = {
+                status: 404
+            }
+            throw error
+        }
+        const isBanned = await banDbRequest.isBanned(user.dataValues.email)
+        if (isBanned) {
+            await banDbRequest.unbanUser(userId)
+            mailer.sandMail(user.dataValues.email, 'UnBanned', description)
+            res.json(`${user.dataValues.email} is now unbanned!`)
+        } else {
+            res.json(`You cannot unban user who is not banned`)
+        }
+    } catch (error) {
+        next(error)
+    }
+}
 module.exports = {
     viewUsers, userInfoUpdate, deleteUser, viewOneById,
     viewManagers, forgotPassword, resetPassword, profile,
-    getRequests, populateRequest, userOwnRequests, userDeleteRequest
+    getRequests, populateRequest, userOwnRequests, userDeleteRequest,
+    banUser, unbanUser
 }
 
