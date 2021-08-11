@@ -9,20 +9,29 @@ const bcrypt = require('bcrypt')
 
 // to view all users
 async function viewUsers(req, res, next) {
+    const teamid = req.query.teamid
     try {
-        const users = await dbRequest.findAllUsers()
-        res.status(202).json(users)
+        if (!teamid) {
+            const users = await dbRequest.findAllUsers()
+            res.status(202).json(users)
+        } else {
+            const users = await dbRequest.getUsersByTeam(teamid)
+            if (users < 1) {
+                res.status(202).json({ "message": "No users in selected team" })
+            } else {
+                res.status(202).json(users)
+            }
+        }
     } catch (error) {
-        error.status = 404
+
         next(error)
     }
 }
 
 // delete user
 async function deleteUser(req, res, next) {
-    const { name, role } = req.body
-    check.inputValidation(name, role)
-    dbRequest.deleteUser(name, role)
+    const userId = req.params.id
+    dbRequest.deleteUser(userId)
         .then(result => {
             res.status(202).json(result + " Deleted")
         }).catch(error => {
@@ -49,12 +58,18 @@ async function viewOneById(req, res, next) {
 
 //all managers view
 async function viewManagers(req, res, next) {
+    const managerId = req.query.id
     try {
-        const managers = await dbRequest.findAllManagers()
-        if (managers.length != 0) {
-            res.json(managers)
+        if (managerId) {
+            const manager = await dbRequest.findOneManager(managerId)
+            res.json(manager)
         } else {
-            throw error
+            const managers = await dbRequest.findAllManagers()
+            if (managers.length != 0) {
+                res.json(managers)
+            } else {
+                throw error
+            }
         }
     } catch (error) {
         error.msg = "managers"
@@ -64,25 +79,36 @@ async function viewManagers(req, res, next) {
 
 // update users info 
 async function userInfoUpdate(req, res, next) {
-    // login, avatar, password
     const userId = req.user.id
-    console.log(userId)
-
-
-    // check.inputValidation(name)
-    // dbRequest.updateUser(name, activeUserId)
-    //     .then((result) => {
-    //         res.status(200).json(result + " Updated");
-    //     }).catch(error => {
-    //         error.status = 404
-    //         next(error)
-    //     })
+    const newUserInfo = Object.assign({}, req.body) // multer brokes req.body
+    const picture = req.file.path
+    if (picture) {
+        newUserInfo.picture = picture
+    }
+    try {
+        check.inputValidation(newUserInfo)
+        if (newUserInfo.hasOwnProperty('newPassword')) {
+            if (newUserInfo.newPassword == newUserInfo.confirmPassword) {
+                const password = await bcrypt.hash(newUserInfo.confirmPassword, 10)
+                delete newUserInfo.newPassword
+                delete newUserInfo.confirmPassword
+                newUserInfo.password = password
+                await dbRequest.updateUser(newUserInfo, userId)
+                res.json({ "message": "Your info has been updated" })
+            }
+        } else {
+            await dbRequest.updateUser(newUserInfo, userId)
+            res.json({ "message": "Your info has been updated" })
+        }
+    } catch (error) {
+        next(error)
+    }
 }
 
 async function forgotPassword(req, res, next) {
     const { email } = req.body
-    check.inputValidation(email)
     try {
+        check.inputValidation(email)
         const user = await dbRequest.findOneByEmail(email)
         const accessToken = token.signForReset(user)
         const link = `Follow to reset password localhost:3000/user/reset-password/${accessToken}`
@@ -101,7 +127,6 @@ async function forgotPassword(req, res, next) {
 async function resetPassword(req, res, next) {
     const { accessToken } = req.params
     const user = req.body
-    //del id from link
     try {
         check.inputValidation(user)
         const verifiedToken = token.verifyForReset(accessToken)
@@ -127,7 +152,7 @@ async function resetPassword(req, res, next) {
 
 async function profile(req, res, next) {
     try {
-        const user = await dbRequest.findOneById(req.params.id)
+        const user = await dbRequest.findOneById(req.user.id)
         if (!user) {
             const error = {
                 'status': 404
@@ -171,7 +196,7 @@ async function populateRequest(req, res, next) {
                     break;
             }
             mailer.sandMail(request.dataValues.userEmail, 'Registration', message)
-            res.json(`Approval for ${request.dataValues.userEmail} is ${approved}`)
+            res.json({ "message": `Decision for ${request.dataValues.userEmail} request is set to ${approved}` })
         }
         if (request.dataValues.requestType.includes('join')) {
             switch (approved) {
@@ -185,7 +210,7 @@ async function populateRequest(req, res, next) {
                     break;
             }
             mailer.sandMail(request.dataValues.userEmail, 'TeamJoin', approved)
-            res.json(`Approval for ${request.dataValues.userEmail} is ${approved}`)
+            res.json({ "message": `Decision for ${request.dataValues.userEmail} request is set to ${approved}` })
         }
         if (request.dataValues.requestType.includes('leave')) {
             switch (approved) {
@@ -199,7 +224,7 @@ async function populateRequest(req, res, next) {
                     break;
             }
             mailer.sandMail(request.dataValues.userEmail, 'TeamLeave', approved)
-            res.json(`Approval for ${request.dataValues.userEmail} is ${approved}`)
+            res.json({ "message": `Decision for ${request.dataValues.userEmail} request is set to ${approved}` })
         }
 
     } catch (error) {
@@ -213,7 +238,7 @@ async function userOwnRequests(req, res, next) {
         const request = await dbRequest.extractUserRequest(req.user.id)
         if (request.length < 1) {
             res.status(201).json({
-                "Msg": "You have no active requests"
+                "message": "You have no active requests"
             })
         }
         res.status(201).json(request)
@@ -229,7 +254,7 @@ async function userDeleteRequest(req, res, next) {
         if (request) {
             await dbRequest.deleteRequest(requestId)
             res.status(200).json({
-                "msg": "Request is sucessfully deleted"
+                "message": "Request is sucessfully deleted"
             })
         } else {
             throw error
@@ -242,7 +267,8 @@ async function userDeleteRequest(req, res, next) {
 
 async function banUser(req, res, next) {
     const userId = req.params.id
-    const { description } = req.body
+    const { description, type } = req.body
+    const typeLowerCase = type.toLowerCase()
     try {
         const user = await dbRequest.findOneById(userId)
         if (user == null) {
@@ -252,45 +278,44 @@ async function banUser(req, res, next) {
             throw error
         }
         const isBanned = await banDbRequest.isBanned(user.dataValues.email)
-        if (isBanned) {
-            res.json(`User ${user.dataValues.email} is already banned`)
-        } else {
-            await banDbRequest.banUser(userId, description, user.dataValues.email)
-            res.json(`User ${user.dataValues.name} is now baned`)
-            mailer.sandMail(user.dataValues.email, 'Ban', description)
+        switch (typeLowerCase) {
+            case 'ban':
+                if (isBanned) {
+                    res.json(`User ${user.dataValues.email} is already banned`)
+                } else {
+                    await banDbRequest.banUser(userId, description, user.dataValues.email)
+                }
+                break;
+            case 'unban':
+                if (isBanned) {
+                    await banDbRequest.unbanUser(userId)
+                } else {
+                    res.json({ "message": "You cannot unban user who is not banned" })
+                }
+                break;
+            default:
+                break;
         }
+        res.json({ "message": `User ${user.dataValues.name} ${type} sucessfull` })
+        mailer.sandMail(user.dataValues.email, typeLowerCase, description)
     } catch (error) {
         next(error)
     }
 }
 
-async function unbanUser(req, res, next) {
-    const userId = req.params.id
-    const { description } = req.body
-    try {
-        const user = await dbRequest.findOneById(userId)
-        if (user == null) {
-            const error = {
-                status: 404
-            }
-            throw error
-        }
-        const isBanned = await banDbRequest.isBanned(user.dataValues.email)
-        if (isBanned) {
-            await banDbRequest.unbanUser(userId)
-            mailer.sandMail(user.dataValues.email, 'UnBanned', description)
-            res.json(`${user.dataValues.email} is now unbanned!`)
-        } else {
-            res.json(`You cannot unban user who is not banned`)
-        }
-    } catch (error) {
-        next(error)
-    }
-}
 module.exports = {
-    viewUsers, userInfoUpdate, deleteUser, viewOneById,
-    viewManagers, forgotPassword, resetPassword, profile,
-    getRequests, populateRequest, userOwnRequests, userDeleteRequest,
-    banUser, unbanUser
+    profile,
+    banUser,
+    deleteUser,
+    viewUsers,
+    viewOneById,
+    viewManagers,
+    userInfoUpdate,
+    userOwnRequests,
+    userDeleteRequest,
+    getRequests,
+    forgotPassword,
+    resetPassword,
+    populateRequest
 }
 
