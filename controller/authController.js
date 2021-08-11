@@ -3,29 +3,35 @@ const dbRequest = require('../userDTO/userDBrequests')
 const banDbRequest = require('../banDTO/banRequests')
 const token = require('../userDTO/userTokenControll')
 const check = require('../middleware/inputVerify')
-
+const rolesDbRequest = require('../rolesDTO/rolesDBrequests')
 
 
 module.exports.createUser = async (req, res, next) => {
     try {
-        const user = req.body
+        const user = {
+            name: req.body.name,
+            email: req.body.email,
+            role: req.body.role,
+            password: req.body.password
+        }
+        const picturePath = req.file.path
         check.inputValidation(user)
         const checkUser = await dbRequest.findOneUser(user.name, user.email)
         if (!checkUser) {
+            const roleId = await rolesDbRequest.findRole(user.role)
             if (user.role == 'user') {
                 const hashedPassword = await bcrypt.hash(user.password, 10)
-                dbRequest.createUser(user.name, user.role, hashedPassword, user.email)
-                    .then(user => {
-                        const accessToken = token.sign(user.dataValues)
-                        res.json({
-                            id: user.id,
-                            email: user.email,
-                            name: user.name,
-                            role: user.role,
-                            token: accessToken
-                        }).status(201)
-                    })
-            } else {
+                const userDB = await dbRequest.createUser(user.name, roleId, hashedPassword, user.email, picturePath)
+                const accessToken = token.sign(userDB.dataValues)
+                res.json({
+                    id: userDB.dataValues.id,
+                    email: userDB.dataValues.email,
+                    name: userDB.dataValues.name,
+                    roleId: roleId,
+                    token: accessToken
+                })
+            }
+            if (user.role == 'manager') {
                 user.password = await bcrypt.hash(user.password, 10)
                 await dbRequest.newRequest(user, 'manager registration')
                 res.json({
@@ -51,7 +57,7 @@ module.exports.loginUser = async (req, res, next) => {
         }
         const isBanned = await banDbRequest.isBanned(userDB.email)
         if (isBanned != null) {
-            res.json(`${userDB.email}, we're sorry, but you are banned from our service`)
+            res.json({ "message": `${userDB.email}, we're sorry, but you are banned from our service` })
         }
         const auth = await bcrypt.compare(user.password, userDB.password)
         if (auth) {
@@ -59,7 +65,7 @@ module.exports.loginUser = async (req, res, next) => {
             res.json({
                 id: userDB.id,
                 name: userDB.name,
-                role: userDB.role,
+                roleId: userDB.RoleId,
                 token: accessToken
             }).status(201)
         } else {
