@@ -24,10 +24,10 @@ async function sandMail(email, topic, description) {
 }
 
 function generateMessage(topic, description) {
-    if (topic == 'Ban') {
+    if (topic == 'ban') {
         return `We're sorry. You have been banned due to ${description}`
     }
-    if (topic == "UnBanned") {
+    if (topic == "unban") {
         return `Dear player! Your account has been unbanned due to ${description}`
     }
     if (topic == "TeamLeave") {
@@ -44,6 +44,9 @@ function generateMessage(topic, description) {
         if (description == false) {
             return `Dear player, we're sorry but your request to join team was declined :(`
         }
+    }
+    if (topic == "Kicked from Team") {
+        return `Dear player, we're sorry but you we're kicked from team due to ${description}`
     }
 }
 
