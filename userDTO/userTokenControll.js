@@ -4,7 +4,7 @@ module.exports.sign = user => {
     const userToSign = {
         id: user.id,
         name: user.name,
-        role: user.role
+        roleId: user.RoleId
     }
     return jwt.sign(userToSign, process.env.JWT_SECRET)
 }
@@ -13,7 +13,7 @@ module.exports.signForReset = user => {
     const userToSign = {
         id: user.id,
         name: user.name,
-        role: user.role
+        roleId: user.RoleId
     }
     return jwt.sign(userToSign, process.env.JWT_SECRET, { expiresIn: '900s' })
 }

@@ -1,24 +1,33 @@
 const Sequelize = require('sequelize')
 const Op = Sequelize.Op
-const { User, Request, Team } = require('../models/index')
+const { User, Request, Team, Role } = require('../models/index')
 const teamDbRequest = require('../teamDTO/teamDBrequests')
 
 // for users JWT signup
-async function createUser(name, role, password, email) {
-    return await User.create({
-        email,
-        name,
-        role,
-        password,
-    })
+async function createUser(name, roleId, password, email, picturePath) {
+    try {
+        return await User.create({
+            email,
+            name,
+            RoleId: roleId,
+            password,
+            picture: picturePath
+        })
+    } catch (error) {
+        throw error
+    }
 }
 
 //for all users view
 async function findAllUsers() {
-    return await User.findAll({
-        attributes: ['id', 'email', 'name', 'role',],
-        include: [{ model: Team, attributes: ['id', 'name'] }]
-    })
+    try {
+        return await User.findAll({
+            attributes: ['id', 'email', 'name', 'RoleId',],
+            include: [{ model: Team, attributes: ['id', 'name'] }]
+        })
+    } catch (error) {
+        throw error
+    }
 }
 
 //find all managers
@@ -26,54 +35,80 @@ async function findAllManagers() {
     try {
         return await User.findAll({
             where: {
-                role: 'manager'
-            },
-            attributes: ['id', 'email', 'name', 'role']
+                RoleId: 2
+            }
+            // ,
+            // attributes: ['id', 'email', 'name']
         })
     } catch (error) {
-        return error
+        throw error
+    }
+}
+
+//find one manager
+
+async function findOneManager(id) {
+    try {
+        return await User.findOne({
+            where: {
+                id
+            }
+        })
+    } catch (error) {
+        throw error
     }
 }
 
 
 //google auth
 async function createUserGoogle(user) {
-    return await User.findOrCreate({
-        where: {
-            googleId: user.googleId
-        },
-        defaults: {
-            googleId: user.googleId,
-            name: user.name,
-            role: 'user',
-            picture: user.picture,
-            email: user.email
-        }
-    })
+    const roleId = 1
+    try {
+        return await User.findOrCreate({
+            where: {
+                googleId: user.googleId
+            },
+            defaults: {
+                googleId: user.googleId,
+                name: user.name,
+                RoleId: roleId,
+                picture: user.picture,
+                email: user.email
+            }
+        })
+    } catch (error) {
+        throw error
+    }
 }
 
 // delete user 
-async function deleteUser(name, role) {
-    return await User.destroy({
-        where: {
-            name,
-            role
-        }
-    })
+async function deleteUser(userId) {
+    try {
+        return await User.destroy({
+            where: {
+                id: userId
+            }
+        })
+    } catch (error) {
+        throw error
+    }
 }
 
 // update info of user
-async function updateUser(name, id) {
-    return await User.update({ name }, {
-        where: {
-            id
-        }
-    })
+async function updateUser(userInfo, id) {
+    try {
+        return await User.update(userInfo, {
+            where: {
+                id
+            }
+        })
+    } catch (error) {
+        throw error
+    }
 }
 
 // check if user is already registered 
 async function findOneUser(name, email) {
-
     try {
         return await User.findOne({
             where: {
@@ -81,17 +116,21 @@ async function findOneUser(name, email) {
             }
         })
     } catch (error) {
-        return error
+        throw error
     }
 }
 
 //for loging in 
 async function findOneByName(name) {
-    return await User.findOne({
-        where: {
-            name
-        }
-    })
+    try {
+        return await User.findOne({
+            where: {
+                name
+            }
+        })
+    } catch (error) {
+        throw error
+    }
 }
 
 // to view one users info
@@ -101,8 +140,8 @@ async function findOneById(id) {
             where: {
                 id
             },
-            attributes: ['id', 'email', 'name', 'role', 'picture'],
-            include: [{ model: Team, attributes: ['id', 'name'] }]
+            attributes: ['id', 'email', 'name', 'picture'],
+            include: [{ model: Team, attributes: ['id', 'name'] }, { model: Role, attributes: ['id', 'role'] }]
         })
     } catch (error) {
         throw error
@@ -111,22 +150,30 @@ async function findOneById(id) {
 
 //find by email for password reset
 async function findOneByEmail(email) {
-    const user = await User.findOne({
-        where: {
-            email
-        },
-        attributes: ['id', 'name', 'role']
-    })
-    return user.dataValues
+    try {
+        const user = await User.findOne({
+            where: {
+                email
+            },
+            attributes: ['id', 'name', 'RoleId']
+        })
+        return user.dataValues
+    } catch (error) {
+        throw error
+    }
 }
 
 // find one by id to update password
 async function updatePassword(id, password) {
-    return await User.update({ password }, {
-        where: {
-            id
-        }
-    })
+    try {
+        return await User.update({ password }, {
+            where: {
+                id
+            }
+        })
+    } catch (error) {
+        throw error
+    }
 }
 
 // create request
@@ -196,18 +243,22 @@ async function findRequest(reqId) {
 async function acceptRequest(reqId, userName, password, email) {
     try {
         await deleteRequest(reqId)
-        return await createUser(userName, 'manager', password, email)
+        return await createUser(userName, 2, password, email)
     } catch (error) {
         throw error
     }
 }
 
 async function deleteRequest(reqId) {
-    return await Request.destroy({
-        where: {
-            id: reqId
-        }
-    })
+    try {
+        return await Request.destroy({
+            where: {
+                id: reqId
+            }
+        })
+    } catch (error) {
+        throw error
+    }
 }
 
 async function acceptTeamJoin(requestId, userEmail, requestType) {
@@ -229,7 +280,6 @@ async function acceptTeamJoin(requestId, userEmail, requestType) {
 
 async function acceptTeamLeave(requestId, userEmail, requestType) {
     const teamId = requestType.match(/\d+/)[0]
-
     try {
         await deleteRequest(requestId)
         const user = await User.update({ TeamId: teamId }, {
@@ -259,35 +309,43 @@ async function extractUserRequest(userId) {
 }
 
 async function checkInAnotherTeam(teamId, userId) {
-    if (teamId == 1) {
-        const isInTeam = await teamDbRequest.checkUserInTeam(userId, 2)
-        if (isInTeam) {
-            await teamDbRequest.deleteFromTeam(userId, 2)
+    try {
+        if (teamId == 1) {
+            const isInTeam = await teamDbRequest.checkUserInTeam(userId, 2)
+            if (isInTeam) {
+                await teamDbRequest.deleteFromTeam(userId, 2)
+                return
+            }
             return
         }
-        return
-    }
-    if (teamId == 2) {
-        const isInTeam = await teamDbRequest.checkUserInTeam(userId, 1)
-        if (isInTeam) {
-            await teamDbRequest.deleteFromTeam(userId, 1)
+        if (teamId == 2) {
+            const isInTeam = await teamDbRequest.checkUserInTeam(userId, 1)
+            if (isInTeam) {
+                await teamDbRequest.deleteFromTeam(userId, 1)
+                return
+            }
             return
         }
-        return
+    } catch (error) {
+        throw error
     }
 }
 
 async function getUsersByTeam(teamId) {
-    const users = await Team.findOne({
-        where: {
-            id: teamId
-        },
-        include: [{ model: User, attributes: ['id', 'name', 'email'] }]
-    })
-    if (users.length < 1) {
-        return "No players in this team"
+    try {
+        const users = await Team.findOne({
+            where: {
+                id: teamId
+            },
+            include: [{ model: User, attributes: ['id', 'name', 'email'] }]
+        })
+        if (users.length < 1) {
+            return "No players in this team"
+        }
+        return users.dataValues.Users
+    } catch (error) {
+        throw error
     }
-    return users.dataValues.Users
 }
 
 module.exports = {
@@ -295,5 +353,6 @@ module.exports = {
     createUserGoogle, findAllUsers, findOneByName, findAllManagers,
     findOneByEmail, updatePassword, newRequest, extractRequests,
     acceptRequest, deleteRequest, findRequest, acceptTeamJoin,
-    acceptTeamLeave, extractUserRequest, getUsersByTeam
+    acceptTeamLeave, extractUserRequest, getUsersByTeam,
+    findOneManager
 }
