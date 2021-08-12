@@ -16,14 +16,9 @@ async function viewUsers(req, res, next) {
             res.status(202).json(users)
         } else {
             const users = await dbRequest.getUsersByTeam(teamid)
-            if (users < 1) {
-                res.status(202).json({ "message": "No users in selected team" })
-            } else {
-                res.status(202).json(users)
-            }
+            res.status(202).json(users)
         }
     } catch (error) {
-
         next(error)
     }
 }
@@ -58,21 +53,20 @@ async function viewOneById(req, res, next) {
 
 //all managers view
 async function viewManagers(req, res, next) {
-    const managerId = req.query.id
     try {
-        if (managerId) {
-            const manager = await dbRequest.findOneManager(managerId)
-            res.json(manager)
-        } else {
-            const managers = await dbRequest.findAllManagers()
-            if (managers.length != 0) {
-                res.json(managers)
-            } else {
-                throw error
-            }
-        }
+        const managers = await dbRequest.findAllManagers()
+        res.json(managers)
     } catch (error) {
-        error.msg = "managers"
+        next(error)
+    }
+}
+
+async function viewManagerById(req, res, next) {
+    const managerId = req.params.id
+    try {
+        const manager = await dbRequest.findOneManager(managerId)
+        res.json(manager)
+    } catch (error) {
         next(error)
     }
 }
@@ -103,20 +97,20 @@ async function userInfoUpdate(req, res, next) {
 }
 
 async function forgotPassword(req, res, next) {
-    const { email } = req.body
+    const userReq = req.body
+    const topic = 'Password Reset'
     try {
-        check.inputValidation(email)
-        const user = await dbRequest.findOneByEmail(email)
+        check.inputValidation(userReq.email)
+        const user = await dbRequest.findOneByEmail(userReq.email)
         const accessToken = token.signForReset(user)
-        const link = `Follow to reset password localhost:3000/user/reset-password/${accessToken}`
-        mailer.sendLink(email, link)
+        const link = `localhost:3000/user/reset-password/${accessToken}`
+        mailer.sandMail(userReq.email, topic, link)
         res.status(201).json({
             'status': 'Success',
             'message': 'Link has been sent to your email!',
             'time': 'Link expires in 15 minutes'
         })
     } catch (error) {
-        error.status = 404
         next(error)
     }
 }
@@ -303,16 +297,17 @@ async function banUser(req, res, next) {
 module.exports = {
     profile,
     banUser,
-    deleteUser,
     viewUsers,
+    deleteUser,
+    getRequests,
     viewOneById,
     viewManagers,
-    userInfoUpdate,
-    userOwnRequests,
-    userDeleteRequest,
-    getRequests,
-    forgotPassword,
     resetPassword,
-    populateRequest
+    userInfoUpdate,
+    forgotPassword,
+    userOwnRequests,
+    viewManagerById,
+    populateRequest,
+    userDeleteRequest,
 }
 
