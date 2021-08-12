@@ -6,7 +6,11 @@ module.exports.sign = user => {
         name: user.name,
         roleId: user.RoleId
     }
-    return jwt.sign(userToSign, process.env.JWT_SECRET)
+    try {
+        return jwt.sign(userToSign, process.env.JWT_SECRET)
+    } catch (error) {
+        throw error
+    }
 }
 
 module.exports.signForReset = user => {
@@ -15,14 +19,26 @@ module.exports.signForReset = user => {
         name: user.name,
         roleId: user.RoleId
     }
-    return jwt.sign(userToSign, process.env.JWT_SECRET, { expiresIn: '900s' })
+    try {
+        return jwt.sign(userToSign, process.env.JWT_SECRET, { expiresIn: '900s' })
+    } catch (error) {
+        throw error
+    }
 }
 module.exports.verifyForReset = token => {
-    return jwt.verify(token, process.env.JWT_SECRET)
+    try {
+        return jwt.verify(token, process.env.JWT_SECRET)
+    } catch (error) {
+        throw error
+    }
 }
 
 module.exports.decode = token => {
-    return jwt.decode(token, process.env.JWT_SECRET)
+    try {
+        return jwt.decode(token, process.env.JWT_SECRET)
+    } catch (error) {
+        throw error
+    }
 }
 
 
