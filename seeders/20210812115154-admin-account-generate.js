@@ -15,7 +15,9 @@ module.exports = {
       name: 'admin',
       email: 'admin@google.com',
       password: '$2a$10$WCDrlQwOsSIFrglX8Hx7iOU43EoI2EdYmfCKurKgO03ZGJ6eoPyJ.',
-      RoleId: '3'
+      RoleId: '3',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
     }], {});
   },
 
