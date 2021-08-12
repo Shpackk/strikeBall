@@ -657,13 +657,13 @@
 						"header": [
 							{
 								"key": "token",
-								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwibmFtZSI6ImFub3RoZXJib3kiLCJyb2xlIjoidXNlciIsImlhdCI6MTYyODE4ODgxOH0.Hf-W2uUb5rc925j9Aj2B2bl4gmfFAN_eguiZ_zDcSXk",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywibmFtZSI6ImFkbWluIiwicm9sZUlkIjozLCJpYXQiOjE2Mjg3NzIxNDV9.SlgSeMDZ2mka85mND12MHaXhRlZCUW4ZMRXF4FPH9FM",
 								"type": "text"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"approved\": false\r\n}",
+							"raw": "{\r\n    \"approved\": true\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -671,14 +671,14 @@
 							}
 						},
 						"url": {
-							"raw": "localhost:3000/requests/2",
+							"raw": "localhost:3000/requests/1",
 							"host": [
 								"localhost"
 							],
 							"port": "3000",
 							"path": [
 								"requests",
-								"2"
+								"1"
 							]
 						}
 					},
