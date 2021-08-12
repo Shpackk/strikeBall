@@ -36,9 +36,8 @@ async function findAllManagers() {
         return await User.findAll({
             where: {
                 RoleId: 2
-            }
-            // ,
-            // attributes: ['id', 'email', 'name']
+            },
+            attributes: ['id', 'email', 'name']
         })
     } catch (error) {
         throw error
@@ -51,8 +50,10 @@ async function findOneManager(id) {
     try {
         return await User.findOne({
             where: {
-                id
-            }
+                id,
+                RoleId: '2'
+            },
+            attributes: ['id', 'name', 'email']
         })
     } catch (error) {
         throw error
@@ -96,15 +97,12 @@ async function deleteUser(userId) {
 
 // update info of user
 async function updateUser(userInfo, id) {
-    console.log(userInfo)
-    console.log(id)
     try {
-        const res = await User.update(userInfo, {
+        return await User.update(userInfo, {
             where: {
                 id
             }
         })
-        console.log(res)
     } catch (error) {
         throw error
     }
