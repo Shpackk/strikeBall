@@ -38,5 +38,6 @@ router.patch('/requests/:id', passport.authenticate('jwt', { session: false }), 
 
 router.post('/user/:id/ban', passport.authenticate('jwt', { session: false }), role.requireAdmin, userController.banUser)
 
+router.get('/manager/:id', passport.authenticate('jwt', { session: false }), role.requireAdmin, userController.viewManagerById)
 
 module.exports = router;
