@@ -1,6 +1,6 @@
 const Sequelize = require('sequelize')
 const Op = Sequelize.Op
-const { User, Request, Team, Role } = require('../models/index')
+const { User, Request, Team, Role } = require('../../models/index')
 const teamDbRequest = require('../teamDTO/teamDBrequests')
 
 // for users JWT signup

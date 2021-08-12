@@ -2,7 +2,7 @@ const { Router } = require('express');
 const passport = require('passport');
 const authController = require('../controller/authController')
 const getController = require('../controller/getController')
-const token = require('../userDTO/userTokenControll')
+const token = require('../DTO/userDTO/userTokenControll')
 const multer = require('../service/multer')
 require('../config/passportJWT')
 require('../config/passportGoogle')

@@ -1,4 +1,4 @@
-const { Team, Request, User } = require('../models/index')
+const { Team, Request, User } = require('../../models/index')
 
 async function createTeam(name) {
     try {

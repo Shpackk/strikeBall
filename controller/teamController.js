@@ -1,5 +1,5 @@
-const dbRequest = require('../teamDTO/teamDBrequests')
-const dbUserRequest = require('../userDTO/userDBrequests')
+const dbRequest = require('../DTO/teamDTO/teamDBrequests')
+const dbUserRequest = require('../DTO/userDTO/userDBrequests')
 const mailer = require('../service/nodeMailer')
 
 async function createTeam(req, res, next) {

@@ -1,9 +1,9 @@
 const bcrypt = require('bcrypt')
-const dbRequest = require('../userDTO/userDBrequests')
-const banDbRequest = require('../banDTO/banRequests')
-const token = require('../userDTO/userTokenControll')
+const dbRequest = require('../DTO/userDTO/userDBrequests')
+const banDbRequest = require('../DTO/banDTO/banRequests')
+const token = require('../DTO/userDTO/userTokenControll')
 const check = require('../middleware/inputVerify')
-const rolesDbRequest = require('../rolesDTO/rolesDBrequests')
+const rolesDbRequest = require('../DTO/rolesDTO/rolesDBrequests')
 
 
 module.exports.createUser = async (req, res, next) => {
@@ -14,7 +14,7 @@ module.exports.createUser = async (req, res, next) => {
             role: req.body.role,
             password: req.body.password
         }
-        const picturePath = req.file.path
+        const picturePath = req.file ? req.file.path : ''
         check.inputValidation(user)
         const checkUser = await dbRequest.findOneUser(user.name, user.email)
         if (!checkUser) {
