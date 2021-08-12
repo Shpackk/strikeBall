@@ -81,10 +81,7 @@ async function viewManagers(req, res, next) {
 async function userInfoUpdate(req, res, next) {
     const userId = req.user.id
     const newUserInfo = Object.assign({}, req.body) // multer brokes req.body
-    const picture = req.file.path
-    if (picture) {
-        newUserInfo.picture = picture
-    }
+    newUserInfo.picture = req.file ? req.file.path : null
     try {
         check.inputValidation(newUserInfo)
         if (newUserInfo.hasOwnProperty('newPassword')) {

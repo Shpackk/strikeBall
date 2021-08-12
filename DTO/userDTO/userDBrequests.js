@@ -96,12 +96,15 @@ async function deleteUser(userId) {
 
 // update info of user
 async function updateUser(userInfo, id) {
+    console.log(userInfo)
+    console.log(id)
     try {
-        return await User.update(userInfo, {
+        const res = await User.update(userInfo, {
             where: {
                 id
             }
         })
+        console.log(res)
     } catch (error) {
         throw error
     }

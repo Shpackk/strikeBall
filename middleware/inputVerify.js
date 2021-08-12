@@ -22,7 +22,7 @@ function badInput(user) {
     }
 
     if (user.hasOwnProperty('password')) {
-        if (user.password.length <= 5) {
+        if (user.password.length <= 4) {
             return "password"
         }
     }
