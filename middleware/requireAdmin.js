@@ -30,7 +30,7 @@ async function requireManagerAdmin(req, res, next) {
             next()
         }
         else {
-            res.json({ "message": "No permission" })
+            res.status(403).json({ "message": "No permission" })
         }
     } catch (error) {
         throw error
