@@ -62,9 +62,6 @@ async function viewPlayersInTeam(req, res, next) {
     const teamId = req.params.id
     try {
         const users = await dbUserRequest.getUsersByTeam(teamId)
-        if (users.length < 1) {
-            res.json({ "message": "No players in this team" })
-        }
         res.json(users)
     } catch (error) {
         next(error)
