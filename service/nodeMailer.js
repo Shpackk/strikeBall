@@ -48,6 +48,9 @@ function generateMessage(topic, description) {
     if (topic == "Kicked from Team") {
         return `Dear player, we're sorry but you we're kicked from team due to ${description}`
     }
+    if (topic == "Password Reset") {
+        return `Follow this link to reset your password - ${description}`
+    }
 }
 
 
