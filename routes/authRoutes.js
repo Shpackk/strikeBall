@@ -3,7 +3,7 @@ const passport = require('passport');
 const authController = require('../controller/authController')
 const getController = require('../controller/getController')
 const token = require('../DTO/userDTO/userTokenControll')
-const multer = require('../service/multer')
+const multer = require('../service/staticFilesHandler')
 require('../config/passportJWT')
 require('../config/passportGoogle')
 require('../config/passportFacebook')

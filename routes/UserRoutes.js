@@ -3,7 +3,7 @@ const router = Router();
 const passport = require('passport');
 const userController = require('../controller/userController')
 const role = require('../middleware/requireAdmin')
-const multer = require('../service/multer')
+const multer = require('../service/staticFilesHandler')
 require('../config/passportJWT')
 require('../config/passportGoogle')
 // const getController = require('../controller/getController');

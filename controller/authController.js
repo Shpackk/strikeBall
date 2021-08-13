@@ -53,6 +53,7 @@ module.exports.loginUser = async (req, res, next) => {
         check.inputValidation(user)
         const userDB = await dbRequest.findOneByName(user.name)
         if (userDB == null) {
+            error.status = 404
             throw error
         }
         const isBanned = await banDbRequest.isBanned(userDB.email)

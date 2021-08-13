@@ -4,7 +4,7 @@ async function sandMail(email, topic, description) {
     const msg = generateMessage(topic, description)
 
     const transporter = nodemailer.createTransport({
-        host: "smtp.ethereal.email",
+        host: "smtp.gmail.com",
         port: 587,
         secure: false, // true for 465, false for other ports
         auth: {
@@ -17,7 +17,7 @@ async function sandMail(email, topic, description) {
         from: '"StrikeBall Team" <foo@example.com>', // sender address
         to: email, // list of receivers
         subject: topic, // Subject line
-        text: msg, // plain text body
+        html: msg, // plain text body
     });
     console.log("Message sent: %s", info.messageId);
     console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
