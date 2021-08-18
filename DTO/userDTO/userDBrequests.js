@@ -191,8 +191,7 @@ async function newRequest(user, type) {
             }
             throw error
         }
-
-        if (type == 'manager') {
+        if (type == 'manager registration') {
             await Request.create({
                 status: 'active',
                 userEmail: user.email,
@@ -202,7 +201,7 @@ async function newRequest(user, type) {
                 UserId: user.id
             })
         }
-        if (type != 'manager') {
+        if (type != 'manager registration') {
             await Request.create({
                 status: 'active',
                 userEmail: user.email,
@@ -216,13 +215,25 @@ async function newRequest(user, type) {
     }
 }
 
-async function extractRequests() {
+async function extractRequests(roleId) {
+    const attributes = ['id', 'status', 'userEmail', 'requestType']
     try {
-        const requests = await Request.findAll({
-            //if we delete request after decission, no sense to pass 'approved' column
-            attributes: ['id', 'status', 'userEmail', 'requestType']
-        })
-        return requests
+        if (roleId == 3) {
+            const requests = await Request.findAll({
+                attributes
+            })
+            return requests
+        } else {
+            const requests = await Request.findAll({
+                where: {
+                    requestType: {
+                        [Op.not]: "manager registration"
+                    }
+                },
+                attributes
+            })
+            return requests
+        }
     } catch (error) {
         throw error
     }
@@ -243,14 +254,14 @@ async function findRequest(reqId) {
 
 async function acceptRequest(reqId, userName, password, email) {
     try {
-        await deleteRequest(reqId)
+        await clearRequest(reqId)
         return await createUser(userName, 2, password, email)
     } catch (error) {
         throw error
     }
 }
 
-async function deleteRequest(reqId) {
+async function clearRequest(reqId) {
     try {
         return await Request.destroy({
             where: {
@@ -265,7 +276,7 @@ async function deleteRequest(reqId) {
 async function acceptTeamJoin(requestId, userEmail, requestType) {
     const teamId = requestType.match(/\d+/)[0]
     try {
-        await deleteRequest(requestId)
+        await clearRequest(requestId)
         const user = await User.update({ TeamId: teamId }, {
             where: {
                 email: userEmail
@@ -282,7 +293,7 @@ async function acceptTeamJoin(requestId, userEmail, requestType) {
 async function acceptTeamLeave(requestId, userEmail, requestType) {
     const teamId = requestType.match(/\d+/)[0]
     try {
-        await deleteRequest(requestId)
+        await clearRequest(requestId)
         const user = await User.update({ TeamId: teamId }, {
             where: {
                 email: userEmail
@@ -353,7 +364,7 @@ module.exports = {
     createUser, deleteUser, updateUser, findOneById, findOneUser,
     createUserGoogle, findAllUsers, findOneByName, findAllManagers,
     findOneByEmail, updatePassword, newRequest, extractRequests,
-    acceptRequest, deleteRequest, findRequest, acceptTeamJoin,
+    acceptRequest, clearRequest, findRequest, acceptTeamJoin,
     acceptTeamLeave, extractUserRequest, getUsersByTeam,
     findOneManager
 }
