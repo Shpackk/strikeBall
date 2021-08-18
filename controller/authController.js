@@ -9,8 +9,8 @@ const rolesDbRequest = require('../DTO/rolesDTO/rolesDBrequests')
 module.exports.createUser = async (req, res, next) => {
     try {
         const user = {
-            name: req.body.name,
-            email: req.body.email,
+            name: req.body.name.toLowerCase(),
+            email: req.body.email.toLowerCase(),
             role: req.body.role,
             password: req.body.password
         }
@@ -23,7 +23,7 @@ module.exports.createUser = async (req, res, next) => {
                 const hashedPassword = await bcrypt.hash(user.password, 10)
                 const userDB = await dbRequest.createUser(user.name, roleId, hashedPassword, user.email, picturePath)
                 const accessToken = token.sign(userDB.dataValues)
-                res.json({
+                res.status(200).json({
                     id: userDB.dataValues.id,
                     email: userDB.dataValues.email,
                     name: userDB.dataValues.name,
@@ -34,7 +34,7 @@ module.exports.createUser = async (req, res, next) => {
             if (user.role == 'manager') {
                 user.password = await bcrypt.hash(user.password, 10)
                 await dbRequest.newRequest(user, 'manager registration')
-                res.json({
+                res.status(201).json({
                     "message": 'You sucessfully applied!'
                 })
             }
@@ -58,7 +58,7 @@ module.exports.loginUser = async (req, res, next) => {
         }
         const isBanned = await banDbRequest.isBanned(userDB.email)
         if (isBanned != null) {
-            res.json({ "message": `${userDB.email}, we're sorry, but you are banned from our service` })
+            res.status(403).json({ "message": `${userDB.email}, we're sorry, but you are banned from our service` })
         }
         const auth = await bcrypt.compare(user.password, userDB.password)
         if (auth) {
