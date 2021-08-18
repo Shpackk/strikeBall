@@ -18,12 +18,7 @@ async function addToTeam(userId, teamId) {
         attributes: ['players']
     })
     if (teamDb.players != null) {
-        const allPlayers = Array.from(teamDb.players).filter(i => {
-            if (i == ',') {
-                return false
-            }
-            return true
-        })
+        const allPlayers = teamDb.players.split(',').map(Number)
         //split 
         if (allPlayers.includes(userId)) {
             return "player is already in this team"
@@ -52,8 +47,8 @@ async function deleteFromTeam(userId, teamId) {
             attributes: ['players']
         })
 
-        const allPlayers = Array.from(teamDb.players).filter(i => {
-            if ((i == ',') || (i == userId)) {
+        const allPlayers = teamDb.players.split(',').map(Number).filter(i => {
+            if (i == userId) {
                 return false
             }
             return true
@@ -82,6 +77,12 @@ async function checkUserInTeam(userId, teamId) {
             },
             attributes: ['players']
         })
+        if (teamDb == null) {
+            const error = {
+                msg: 'No such team'
+            }
+            throw error
+        }
         if (teamDb.players == null) {
             return false
         }
