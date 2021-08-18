@@ -51,6 +51,10 @@ function generateMessage(topic, description) {
     if (topic == "Password Reset") {
         return `Follow this link to reset your password - ${description}`
     }
+    if (topic == "Registration") {
+        const msg = description ? "Your registration was approved" : "Your registration was declined"
+        return msg
+    }
 }
 
 
