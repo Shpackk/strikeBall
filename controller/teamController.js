@@ -29,7 +29,7 @@ async function joinTeam(req, res, next) {
         const user = await dbUserRequest.findOneById(userId)
         if (user) {
             await dbUserRequest.newRequest(user.dataValues, `join team ${teamId}`)
-            res.json({ "message": "Sucessfully applied!" })
+            res.status(200).json({ "message": "Sucessfully applied!" })
         }
     } catch (error) {
         next(error)
