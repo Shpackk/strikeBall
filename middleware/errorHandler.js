@@ -46,6 +46,12 @@ function errorHandler(err, req, res, next) {
     if (err.msg == 'teamkick') {
         res.status(404).json({ "message": "User not found or he is not in this team" })
     }
+    if (err.msg == 'taken name') {
+        res.status(409).json({ "message": "This name is already taken" })
+    }
+    if (err.msg == 'No such team') {
+        res.status(404).json({ "message": "This team doesnt exist" })
+    }
 }
 
 module.exports = errorHandler
