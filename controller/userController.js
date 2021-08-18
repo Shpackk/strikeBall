@@ -3,9 +3,7 @@ const banDbRequest = require('../DTO/banDTO/banRequests')
 const check = require('../middleware/inputVerify')
 const token = require('../DTO/userDTO/userTokenControll')
 const mailer = require('../service/mailMessageHandler')
-// const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
-// const db = require('../models')
 
 // to view all users
 async function viewUsers(req, res, next) {
@@ -26,14 +24,12 @@ async function viewUsers(req, res, next) {
 // delete user
 async function deleteUser(req, res, next) {
     const userId = req.params.id
-    dbRequest.deleteUser(userId)
-        .then(result => {
-            res.status(202).json(result + " Deleted")
-        }).catch(error => {
-            error.status = 404
-            next(error)
-        })
-
+    try {
+        const result = await dbRequest.deleteUser(userId)
+        res.status(202).json(result + " Deleted")
+    } catch (error) {
+        throw (error)
+    }
 }
 
 // view one user by id
@@ -78,6 +74,13 @@ async function userInfoUpdate(req, res, next) {
     newUserInfo.picture = req.file ? req.file.path : null
     try {
         check.inputValidation(newUserInfo)
+        const isUserNameTaken = newUserInfo.name ? await dbRequest.findOneByName(newUserInfo.name) : null
+        if (isUserNameTaken) {
+            const error = {
+                "msg": "taken name"
+            }
+            throw error
+        }
         if (newUserInfo.hasOwnProperty('newPassword')) {
             if (newUserInfo.newPassword == newUserInfo.confirmPassword) {
                 const password = await bcrypt.hash(newUserInfo.confirmPassword, 10)
@@ -150,7 +153,7 @@ async function profile(req, res, next) {
             }
             throw error
         }
-        res.status(302).json(user)
+        res.status(200).json(user)
     } catch (error) {
         next(error)
     }
@@ -158,8 +161,8 @@ async function profile(req, res, next) {
 
 async function getRequests(req, res, next) {
     try {
-        const requests = await dbRequest.extractRequests()
-        res.json(requests)
+        const requests = await dbRequest.extractRequests(req.user.roleId)
+        res.status(200).json(requests)
     } catch (error) {
         next(error)
     }
@@ -175,18 +178,18 @@ async function populateRequest(req, res, next) {
                 status: 404
             }
         }
-        if (request.dataValues.requestType == 'manager') {
+        if (request.dataValues.requestType == 'manager registration') {
             switch (approved) {
                 case true:
                     await dbRequest.acceptRequest(requestId, request.dataValues.userName, request.dataValues.userPass, request.dataValues.userEmail)
                     break;
                 case false:
-                    await dbRequest.deleteRequest(requestId)
+                    await dbRequest.clearRequest(requestId)
                     break;
                 default:
                     break;
             }
-            mailer.sandMail(request.dataValues.userEmail, 'Registration', message)
+            mailer.sandMail(request.dataValues.userEmail, 'Registration', approved)
             res.json({ "message": `Decision for ${request.dataValues.userEmail} request is set to ${approved}` })
         }
         if (request.dataValues.requestType.includes('join')) {
@@ -195,7 +198,7 @@ async function populateRequest(req, res, next) {
                     await dbRequest.acceptTeamJoin(requestId, request.dataValues.userEmail, request.dataValues.requestType)
                     break;
                 case false:
-                    await dbRequest.deleteRequest(requestId)
+                    await dbRequest.clearRequest(requestId)
                     break;
                 default:
                     break;
@@ -209,7 +212,7 @@ async function populateRequest(req, res, next) {
                     await dbRequest.acceptTeamLeave(requestId, request.dataValues.userEmail, request.dataValues.requestType)
                     break;
                 case false:
-                    await dbRequest.deleteRequest(requestId)
+                    await dbRequest.clearRequest(requestId)
                     break;
                 default:
                     break;
@@ -243,7 +246,7 @@ async function userDeleteRequest(req, res, next) {
     try {
         const request = await dbRequest.findRequest(requestId)
         if (request) {
-            await dbRequest.deleteRequest(requestId)
+            await dbRequest.clearRequest(requestId)
             res.status(200).json({
                 "message": "Request is sucessfully deleted"
             })
@@ -285,6 +288,7 @@ async function banUser(req, res, next) {
                 }
                 break;
             default:
+                res.status(409).json({ "message": "Unknown command" })
                 break;
         }
         res.json({ "message": `User ${user.dataValues.name} ${type} sucessfull` })
