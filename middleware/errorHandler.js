@@ -52,6 +52,9 @@ function errorHandler(err, req, res, next) {
     if (err.msg == 'No such team') {
         res.status(404).json({ "message": "This team doesnt exist" })
     }
+    if (err.msg == "Filetype") {
+        res.status(409).json({ "message": "Non-supported filetype. Pick PNG,JPG,JPEG" })
+    }
 }
 
 module.exports = errorHandler

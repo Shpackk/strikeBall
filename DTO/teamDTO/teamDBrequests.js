@@ -11,30 +11,34 @@ async function createTeam(name) {
     }
 }
 async function addToTeam(userId, teamId) {
-    const teamDb = await Team.findOne({
-        where: {
-            id: teamId
-        },
-        attributes: ['players']
-    })
-    if (teamDb.players != null) {
-        const allPlayers = teamDb.players.split(',').map(Number)
-        //split 
-        if (allPlayers.includes(userId)) {
-            return "player is already in this team"
+    try {
+        const teamDb = await Team.findOne({
+            where: {
+                id: teamId
+            },
+            attributes: ['players']
+        })
+        if (teamDb.players != null) {
+            const allPlayers = teamDb.players.split(',').map(Number)
+            //split 
+            if (allPlayers.includes(userId)) {
+                return "player is already in this team"
 
+            } else {
+                allPlayers.push(userId)
+                teamDb.players = allPlayers.toString()
+                teamDb.id = teamId
+                teamDb.save()
+                return `Player ${userId} joined team ${teamId}`
+            }
         } else {
-            allPlayers.push(userId)
-            teamDb.players = allPlayers.toString()
+            teamDb.players = userId
             teamDb.id = teamId
             teamDb.save()
             return `Player ${userId} joined team ${teamId}`
         }
-    } else {
-        teamDb.players = userId
-        teamDb.id = teamId
-        teamDb.save()
-        return `Player ${userId} joined team ${teamId}`
+    } catch (error) {
+        throw error
     }
 }
 // deletion from team
@@ -64,7 +68,7 @@ async function deleteFromTeam(userId, teamId) {
         })
         return `Player ${userId} left team ${teamId}`
     } catch (error) {
-        console.log(error)
+        throw error
     }
 
 }
@@ -86,13 +90,9 @@ async function checkUserInTeam(userId, teamId) {
         if (teamDb.players == null) {
             return false
         }
-        const allPlayers = Array.from(teamDb.players).filter(i => {
-            if (i == ',') {
-                return false
-            }
-            return true
-        })
-        if (allPlayers.includes(userId.toString())) {
+
+        const allPlayers = teamDb.players.split(',').map(Number)
+        if (allPlayers.includes(userId)) {
             return "player is already in this team"
         }
         return false

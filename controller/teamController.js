@@ -44,7 +44,7 @@ async function leaveTeam(req, res, next) {
             const user = await dbUserRequest.findOneById(userId)
             if (user) {
                 await dbUserRequest.newRequest(user.dataValues, `leave team ${teamId}`)
-                res.json({ "message": "Sucessfully applied!" })
+                res.status(200).json({ "message": "Sucessfully applied!" })
             }
         }
         if (checkInTeam == false) {

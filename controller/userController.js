@@ -71,8 +71,8 @@ async function viewManagerById(req, res, next) {
 async function userInfoUpdate(req, res, next) {
     const userId = req.user.id
     const newUserInfo = Object.assign({}, req.body) // multer brokes req.body
-    newUserInfo.picture = req.file ? req.file.path : null
     try {
+        newUserInfo.picture = req.file ? req.file.path : null
         check.inputValidation(newUserInfo)
         const isUserNameTaken = newUserInfo.name ? await dbRequest.findOneByName(newUserInfo.name) : null
         if (isUserNameTaken) {
@@ -231,11 +231,11 @@ async function userOwnRequests(req, res, next) {
     try {
         const request = await dbRequest.extractUserRequest(req.user.id)
         if (request.length < 1) {
-            res.status(201).json({
+            res.status(200).json({
                 "message": "You have no active requests"
             })
         }
-        res.status(201).json(request)
+        res.status(200).json(request)
     } catch (error) {
         next(error)
     }
