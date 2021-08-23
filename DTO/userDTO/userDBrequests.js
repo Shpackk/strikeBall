@@ -1,6 +1,6 @@
 const Sequelize = require('sequelize')
 const Op = Sequelize.Op
-const { User, Request, Team, Role } = require('../../models/index')
+const { User, Request, Team, Role, Banlist } = require('../../models/index')
 const teamDbRequest = require('../teamDTO/teamDBrequests')
 
 // for users JWT signup
@@ -23,7 +23,10 @@ async function findAllUsers() {
     try {
         return await User.findAll({
             attributes: ['id', 'email', 'name', 'RoleId',],
-            include: [{ model: Team, attributes: ['id', 'name'] }]
+            include: [
+                { model: Team, attributes: ['id', 'name'] },
+                { model: Banlist, attributes: ['description'] }
+            ]
         })
     } catch (error) {
         throw error
@@ -101,7 +104,8 @@ async function updateUser(userInfo, id) {
         return await User.update(userInfo, {
             where: {
                 id
-            }
+            },
+            returning: true
         })
     } catch (error) {
         throw error
@@ -142,7 +146,11 @@ async function findOneById(id) {
                 id
             },
             attributes: ['id', 'email', 'name', 'picture'],
-            include: [{ model: Team, attributes: ['id', 'name'] }, { model: Role, attributes: ['id', 'role'] }]
+            include: [
+                { model: Team, attributes: ['id', 'name'] },
+                { model: Role, attributes: ['id', 'role'] },
+                { model: Banlist, attributes: ['description'] }
+            ]
         })
     } catch (error) {
         throw error

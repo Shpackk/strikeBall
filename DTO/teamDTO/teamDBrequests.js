@@ -50,7 +50,6 @@ async function deleteFromTeam(userId, teamId) {
             },
             attributes: ['players']
         })
-
         const allPlayers = teamDb.players.split(',').map(Number).filter(i => {
             if (i == userId) {
                 return false
@@ -90,7 +89,6 @@ async function checkUserInTeam(userId, teamId) {
         if (teamDb.players == null) {
             return false
         }
-
         const allPlayers = teamDb.players.split(',').map(Number)
         if (allPlayers.includes(userId)) {
             return "player is already in this team"

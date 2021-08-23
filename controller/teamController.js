@@ -62,7 +62,7 @@ async function viewPlayersInTeam(req, res, next) {
     const teamId = req.params.id
     try {
         const users = await dbUserRequest.getUsersByTeam(teamId)
-        res.json(users)
+        res.status(200).json(users)
     } catch (error) {
         next(error)
     }
@@ -80,7 +80,7 @@ async function kickPlayerFromTeam(req, res, next) {
         }
         await dbRequest.deleteFromTeam(userId, teamId)
         mailer.sandMail(userEmail, 'Kicked from Team', kickReason)
-        res.json({ "message": `User ${userEmail} sucessfully kicked from team ${teamId}` })
+        res.status(200).json({ "message": `User ${userEmail} sucessfully kicked from team ${teamId}` })
     } catch (error) {
         error.msg = "teamkick"
         next(error)

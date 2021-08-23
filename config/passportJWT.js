@@ -11,6 +11,9 @@ passport.use(new JWTStrategy({
     if (user) {
         return done(null, user)
     } else {
-        return done(null, false, { errors: { 'Email or password': 'Incorrect' } })
+        const error = {
+            "msg": "Bad token"
+        }
+        return done(error, false)
     }
 }))

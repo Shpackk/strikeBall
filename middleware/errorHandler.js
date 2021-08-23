@@ -10,6 +10,9 @@ function errorHandler(err, req, res, next) {
         res.status(500).json({ "message": "Server error, please try again" })
     }
     // msg errors ( fields verify)
+    if (err.msg == "Bad token") {
+        res.status(409).json({ "message": "Invalid token or token is expired. Please re-login" })
+    }
     if (err.msg == "role") {
         res.status(400).json({ "message": "Enter correct role" })
     }

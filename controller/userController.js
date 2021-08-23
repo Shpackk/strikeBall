@@ -1,4 +1,5 @@
 const dbRequest = require('../DTO/userDTO/userDBrequests')
+const dbTeamRequest = require('../DTO/teamDTO/teamDBrequests')
 const banDbRequest = require('../DTO/banDTO/banRequests')
 const check = require('../middleware/inputVerify')
 const token = require('../DTO/userDTO/userTokenControll')
@@ -11,10 +12,10 @@ async function viewUsers(req, res, next) {
     try {
         if (!teamid) {
             const users = await dbRequest.findAllUsers()
-            res.status(202).json(users)
+            res.status(200).json(users)
         } else {
             const users = await dbRequest.getUsersByTeam(teamid)
-            res.status(202).json(users)
+            res.status(200).json(users)
         }
     } catch (error) {
         next(error)
@@ -40,7 +41,7 @@ async function viewOneById(req, res, next) {
         if (user == null) {
             throw error
         }
-        res.status(202).json(user)
+        res.status(200).json(user)
     } catch (error) {
         error.status = 404
         next(error)
@@ -51,7 +52,7 @@ async function viewOneById(req, res, next) {
 async function viewManagers(req, res, next) {
     try {
         const managers = await dbRequest.findAllManagers()
-        res.json(managers)
+        res.status(200).json(managers)
     } catch (error) {
         next(error)
     }
@@ -87,12 +88,12 @@ async function userInfoUpdate(req, res, next) {
                 delete newUserInfo.newPassword
                 delete newUserInfo.confirmPassword
                 newUserInfo.password = password
-                await dbRequest.updateUser(newUserInfo, userId)
-                res.json({ "message": "Your info has been updated" })
+                const newProfile = await dbRequest.updateUser(newUserInfo, userId)
+                res.json(newProfile)
             }
         } else {
-            await dbRequest.updateUser(newUserInfo, userId)
-            res.json({ "message": "Your info has been updated" })
+            const newProfile = await dbRequest.updateUser(newUserInfo, userId)
+            res.json(newProfile)
         }
     } catch (error) {
         next(error)
@@ -190,7 +191,7 @@ async function populateRequest(req, res, next) {
                     break;
             }
             mailer.sandMail(request.dataValues.userEmail, 'Registration', approved)
-            res.json({ "message": `Decision for ${request.dataValues.userEmail} request is set to ${approved}` })
+            res.status(200).json({ "message": `Decision for ${request.dataValues.userEmail} request is set to ${approved}` })
         }
         if (request.dataValues.requestType.includes('join')) {
             switch (approved) {
@@ -204,7 +205,7 @@ async function populateRequest(req, res, next) {
                     break;
             }
             mailer.sandMail(request.dataValues.userEmail, 'TeamJoin', approved)
-            res.json({ "message": `Decision for ${request.dataValues.userEmail} request is set to ${approved}` })
+            res.status(200).json({ "message": `Decision for ${request.dataValues.userEmail} request is set to ${approved}` })
         }
         if (request.dataValues.requestType.includes('leave')) {
             switch (approved) {
@@ -275,23 +276,25 @@ async function banUser(req, res, next) {
         switch (typeLowerCase) {
             case 'ban':
                 if (isBanned) {
-                    res.json(`User ${user.dataValues.email} is already banned`)
+                    res.status(409).json(`User ${user.dataValues.email} is already banned`)
                 } else {
+                    if (user.dataValues.Team) {
+                        await dbTeamRequest.deleteFromTeam(userId, user.dataValues.Team.dataValues.id)
+                    }
                     await banDbRequest.banUser(userId, description, user.dataValues.email)
                 }
                 break;
             case 'unban':
-                if (isBanned) {
+                isBanned ?
                     await banDbRequest.unbanUser(userId)
-                } else {
-                    res.json({ "message": "You cannot unban user who is not banned" })
-                }
+                    :
+                    res.status(409).json({ "message": "You cannot unban user who is not banned" })
                 break;
             default:
                 res.status(409).json({ "message": "Unknown command" })
                 break;
         }
-        res.json({ "message": `User ${user.dataValues.name} ${type} sucessfull` })
+        res.status(202).json({ "message": `User ${user.dataValues.name} ${type} sucessfull` })
         mailer.sandMail(user.dataValues.email, typeLowerCase, description)
     } catch (error) {
         next(error)
