@@ -5,7 +5,6 @@ const supertest = require('supertest')
 
 describe('POST on /login', () => {
 
-    //----------------
     test("Should return users credentials when logging in ", async () => {
         const response = await supertest(app)
             .post("/login")

@@ -1,19 +1,10 @@
 const app = require('../../app')
 const supertest = require('supertest')
-
-function generateCreds() {
-    var length = 10,
-        charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
-        retVal = "";
-    for (var i = 0, n = charset.length; i < length; ++i) {
-        retVal += charset.charAt((Math.random() * n));
-    }
-    return retVal;
-}
+const service = require('../helpService')
 
 describe('Post on /signup', () => {
     test("should return registered user JSON object", async () => {
-        const credentials = generateCreds()
+        const credentials = service.generateCreds()
         const response = await supertest(app)
             .post("/signup")
             .send({
@@ -43,12 +34,14 @@ describe('Checking conflicts on post /signup', () => {
 
     // when username field is blank , error message pops up
     test("should return error message that username field is blank", async () => {
-        const response = await supertest(app).post('/signup').send({
-            name: "",
-            email: "blabla@gmail.com",
-            role: "user",
-            password: "mycoolpassword"
-        })
+        const response = await supertest(app)
+            .post('/signup')
+            .send({
+                name: "",
+                email: "blabla@gmail.com",
+                role: "user",
+                password: "mycoolpassword"
+            })
         expect(response.statusCode).toBe(400)
         expect(response.body).toBeDefined()
         expect(response.body).toEqual(

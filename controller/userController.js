@@ -277,25 +277,22 @@ async function banUser(req, res, next) {
             case 'ban':
                 if (isBanned) {
                     res.status(409).json(`User ${user.dataValues.email} is already banned`)
-                } else {
-                    if (user.dataValues.Team) {
-                        await dbTeamRequest.deleteFromTeam(userId, user.dataValues.Team.dataValues.id)
-                    }
-                    await banDbRequest.banUser(userId, description, user.dataValues.email)
+                } else if (user.dataValues.Team) {
+                    await dbTeamRequest.deleteFromTeam(userId, user.dataValues.Team.dataValues.id)
                 }
+                await banDbRequest.banUser(userId, description, user.dataValues.email)
                 break;
             case 'unban':
                 isBanned ?
-                    await banDbRequest.unbanUser(userId)
-                    :
+                    await banDbRequest.unbanUser(userId) :
                     res.status(409).json({ "message": "You cannot unban user who is not banned" })
                 break;
             default:
                 res.status(409).json({ "message": "Unknown command" })
                 break;
         }
-        res.status(202).json({ "message": `User ${user.dataValues.name} ${type} sucessfull` })
         mailer.sandMail(user.dataValues.email, typeLowerCase, description)
+        res.status(200).json({ "message": `User ${user.dataValues.name} ${type} sucessfull` })
     } catch (error) {
         next(error)
     }

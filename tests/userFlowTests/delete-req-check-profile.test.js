@@ -1,14 +1,10 @@
-const app = require('../../app')
-const supertest = require('supertest')
-
-const userToken = {
-    'token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTMsIm5hbWUiOiJ0ZXN0ZnJvbWplc3QiLCJyb2xlSWQiOjEsImlhdCI6MTYyOTM4MjIzMX0.D14g7Zx0xqP1PKWoTk8cbqEZNTZeHJTfg8Innr04JeM'
-}
+// no saved data after test
+const service = require('../helpService')
 
 describe('user requests manipulate', () => {
 
     test('should return sucess if request created, extracted and deleted', async () => {
-        const createReqResponse = await createRequest()
+        const createReqResponse = await service.createRequest()
         expect(createReqResponse.statusCode).toEqual(200)
         expect(createReqResponse.headers['content-type']).toEqual(expect.stringContaining('json'))
         expect(createReqResponse.body).toBeDefined()
@@ -18,7 +14,7 @@ describe('user requests manipulate', () => {
             })
         )
 
-        const getMyRequest = await viewMyRequests()
+        const getMyRequest = await service.viewMyRequests()
         expect(getMyRequest.statusCode).toBe(200)
         expect(getMyRequest.body).toBeDefined()
         expect(getMyRequest.body).toHaveLength(1)
@@ -27,12 +23,12 @@ describe('user requests manipulate', () => {
                 expect.objectContaining({
                     id: expect.any(Number),
                     status: expect.stringMatching('active'),
-                    requestType: expect.stringMatching('join team 2')
+                    requestType: expect.stringMatching('join team 1')
                 })
             ])
         )
 
-        const delReqResponse = await deleteRequest(getMyRequest.body[0].id)
+        const delReqResponse = await service.deleteRequest(getMyRequest.body[0].id)
         expect(delReqResponse.statusCode).toBe(200)
         expect(delReqResponse.body).toBeDefined()
         expect(delReqResponse.body).toEqual(
@@ -42,24 +38,3 @@ describe('user requests manipulate', () => {
         )
     })
 })
-
-async function createRequest() {
-    const response = await supertest(app)
-        .patch('/team/2/join')
-        .set(userToken)
-    return response
-}
-
-async function viewMyRequests() {
-    const response = await supertest(app)
-        .get('/user/requests')
-        .set(userToken)
-    return response
-}
-
-async function deleteRequest(id) {
-    const response = await supertest(app)
-        .delete(`/user/requests/delete/${id}`)
-        .set(userToken)
-    return response
-}
