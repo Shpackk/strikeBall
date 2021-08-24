@@ -19,8 +19,10 @@ async function sandMail(email, topic, description) {
         subject: topic, // Subject line
         html: msg, // plain text body
     });
-    console.log("Message sent: %s", info.messageId);
-    console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+    if (process.env.NODE_ENV !== 'test') {
+        console.log("Message sent: %s", info.messageId);
+        console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+    }
 }
 
 function generateMessage(topic, description) {
