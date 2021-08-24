@@ -12,13 +12,15 @@ module.exports = {
     password: process.env.DB_PASS,
     database: process.env.DB_NAME,
     host: process.env.HOST,
-    dialect: process.env.DB_DIALECT
+    dialect: process.env.DB_DIALECT,
+    logging: false
   },
   production: {
     username: process.env.DB_USER,
     password: process.env.DB_PASS,
     database: process.env.DB_NAME,
     host: process.env.HOST,
-    dialect: process.env.DB_DIALECT
+    dialect: process.env.DB_DIALECT,
+    logging: false
   }
 }
