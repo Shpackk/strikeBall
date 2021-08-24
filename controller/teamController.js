@@ -74,15 +74,18 @@ async function kickPlayerFromTeam(req, res, next) {
     try {
         const user = await dbUserRequest.findOneById(userId)
         const userEmail = user.dataValues.email
-        const checkIn = await dbRequest.checkUserInTeam(userId, teamId)
-        if (checkIn == false) {
+        if (user.dataValues.Team) {
+            await dbRequest.deleteFromTeam(userId, user.dataValues.Team.dataValues.id)
+        } else {
+            const error = {
+                msg: 'teamkick'
+            }
             throw error
         }
-        await dbRequest.deleteFromTeam(userId, teamId)
+
         mailer.sandMail(userEmail, 'Kicked from Team', kickReason)
         res.status(200).json({ "message": `User ${userEmail} sucessfully kicked from team ${teamId}` })
     } catch (error) {
-        error.msg = "teamkick"
         next(error)
     }
 }
