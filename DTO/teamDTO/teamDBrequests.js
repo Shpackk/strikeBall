@@ -1,4 +1,4 @@
-const { Team, Request, User } = require('../../models/index')
+const { Team, User } = require('../../models/index')
 
 async function createTeam(name) {
     try {
@@ -19,7 +19,12 @@ async function addToTeam(userId, teamId) {
             attributes: ['players']
         })
         if (teamDb.players != null) {
-            const allPlayers = teamDb.players.split(',').map(Number)
+            const allPlayers = teamDb.players.split(',').map(Number).filter(i => {
+                if (i === 0) {
+                    return false
+                }
+                return true
+            })
             //split 
             if (allPlayers.includes(userId)) {
                 return "player is already in this team"
@@ -56,7 +61,8 @@ async function deleteFromTeam(userId, teamId) {
             }
             return true
         }).toString()
-        teamDb.players = allPlayers
+
+        teamDb.players = allPlayers;
         teamDb.id = teamId
         teamDb.save()
 
