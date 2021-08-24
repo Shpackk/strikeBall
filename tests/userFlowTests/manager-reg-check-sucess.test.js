@@ -1,6 +1,8 @@
 const service = require('../helpService')
+const { User } = require('../../models/index')
 
 describe('Manager registration and checking if he is added to all managers', () => {
+    const creds = service.generateCreds()
 
     test('should register manager and check if he is in a list', async () => {
         const managersPrev = await service.getManagers()
@@ -8,7 +10,7 @@ describe('Manager registration and checking if he is added to all managers', () 
         expect(managersPrev.body).toBeDefined()
         expect(managersPrev.body).toBeInstanceOf(Array)
 
-        const regResponse = await service.regManager()
+        const regResponse = await service.regManager(creds)
         expect(regResponse.statusCode).toBe(201)
         expect(regResponse.body).toBeDefined
         expect(regResponse.body).toEqual(
@@ -38,5 +40,13 @@ describe('Manager registration and checking if he is added to all managers', () 
 
         expect(managersNew.body > managersPrev.body).toBeTruthy()
 
+    })
+    afterAll(async () => {
+        await User.destroy({
+            where: {
+                name: creds
+            }
+        })
+        service.closeConnection()
     })
 })

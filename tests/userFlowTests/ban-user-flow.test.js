@@ -72,4 +72,7 @@ describe('POST on /user/:id/ban', () => {
         )
 
     })
+    afterAll(() => {
+        service.closeConnection()
+    })
 })

@@ -1,18 +1,23 @@
 const app = require('../../app')
 const supertest = require('supertest')
 const service = require('../helpService')
+const { User } = require('../../models/index')
+
+
+beforeAll(async () => {
+    await User.create({
+        name: "testfromjest",
+        email: "testfromjest@google.com",
+        role: "user",
+        password: '$2b$10$3j2skdg8UdkUZkYbX0nc1.Ly4TEfCR09AMyqcjyDxv/yMHA532BXi',
+        picture: null
+    })
+})
 
 describe('Post on /signup', () => {
+    const credentials = service.generateCreds()
     test("should return registered user JSON object", async () => {
-        const credentials = service.generateCreds()
-        const response = await supertest(app)
-            .post("/signup")
-            .send({
-                name: credentials,
-                email: credentials + "@google.com",
-                role: "user",
-                password: credentials
-            })
+        const response = await service.registerUser(credentials)
         expect(response.statusCode).toBe(200)
         expect(response.headers['content-type']).toEqual(expect.stringContaining('json'))
         expect(response.body).toBeDefined()
@@ -26,13 +31,6 @@ describe('Post on /signup', () => {
             })
         )
     })
-})
-
-
-
-describe('Checking conflicts on post /signup', () => {
-
-    // when username field is blank , error message pops up
     test("should return error message that username field is blank", async () => {
         const response = await supertest(app)
             .post('/signup')
@@ -81,4 +79,20 @@ describe('Checking conflicts on post /signup', () => {
             })
         )
     })
+
+    afterAll(async () => {
+        await User.destroy({
+            where: {
+                email: credentials + "@google.com"
+            }
+        })
+        await User.destroy({
+            where: {
+                email: 'testfromjest@google.com'
+            }
+        })
+        service.closeConnection()
+    })
 })
+
+

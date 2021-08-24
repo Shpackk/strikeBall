@@ -1,3 +1,4 @@
+// seems like its a copy of team-join-leave-flow
 // flow of
 // 1. registration
 // 2. request to join team
@@ -8,6 +9,7 @@ const service = require('../helpService')
 describe('flow of registration, join team, accept, viewing team field in profile', () => {
 
     test('should sucess', async () => {
+
         const credentials = await service.registerUser()
         expect(credentials.statusCode).toBe(200)
         expect(credentials.headers['content-type']).toEqual(expect.stringContaining('json'))
@@ -20,6 +22,7 @@ describe('flow of registration, join team, accept, viewing team field in profile
                 roleId: expect.any(Number),
                 token: expect.any(String)
             })
+
         )
 
         const ApplyToTeam = await service.applyToJoinTeam(credentials.body.token)
@@ -48,6 +51,9 @@ describe('flow of registration, join team, accept, viewing team field in profile
         expect(checkProfile.statusCode).toBe(200)
         expect(checkProfile.body).toBeDefined()
         expect(checkProfile.body).toMatchObject({ Team: { id: 1, name: "A" } })
+    })
+    afterAll(() => {
+        service.closeConnection()
     })
 })
 

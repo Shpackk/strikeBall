@@ -1,9 +1,7 @@
 const app = require('../app')
 const supertest = require('supertest')
+const db = require('../models/index')
 
-const profileToChangeToken = {
-    'token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NjIsIm5hbWUiOiJtYW5hZ2VyY29vbG9vIiwicm9sZUlkIjoyLCJpYXQiOjE2Mjk2Nzc2ODh9.tM8GF7Kt6_-3oJ-ZmDB6iZijnXiM4uigcMlCcItibIM'
-}
 
 beforeAll(async () => {
     const admin = await supertest(app)
@@ -15,12 +13,12 @@ beforeAll(async () => {
     const user = await supertest(app)
         .post('/login')
         .send({
-            name: 'xar95ar5dv',
-            password: 'xar95ar5dv'
+            name: 'fortestpurpose',
+            password: 'admin'
         })
     return token = [
         { token: admin.body.token },
-        { token: user.body.token }
+        { token: user.body.token },
     ]
 })
 
@@ -102,8 +100,7 @@ async function getManagers() {
     return response
 }
 
-async function regManager() {
-    const creds = generateCreds()
+async function regManager(creds) {
     const response = await supertest(app)
         .post('/signup')
         .send({
@@ -131,28 +128,35 @@ async function acceptRequest(id) {
         })
     return response
 }
+async function declineRequest(id) {
+    const response = await supertest(app)
+        .patch(`/requests/${id}`)
+        .set(token[0])
+        .send({
+            approved: false
+        })
+    return response
+}
 // 444444444
-async function updateInfo(creds) {
+async function updateInfo(creds, token) {
     const response = await supertest(app)
         .patch('/user/update')
-        .set(profileToChangeToken)
+        .set({ token })
         .send({
-            name: creds,
             email: creds + "@gmail.com",
             newPassword: creds,
             confirmPassword: creds
         })
     return response
 }
-async function getManager() {
+async function getUser(id) {
     const response = await supertest(app)
-        .get(`/manager/${62}`)
+        .get(`/user/${id}`)
         .set(token[0])
     return response
 }
 //55555555555
-async function registerUser() {
-    const credentials = generateCreds()
+async function registerUser(credentials = generateCreds()) {
     const response = await supertest(app)
         .post("/signup")
         .send({
@@ -169,6 +173,24 @@ async function applyToJoinTeam(tok = token[1].token) {
         .set({ 'token': tok })
     return response
 }
+
+async function nonExistingTeam() {
+    const response = await supertest(app)
+        .patch('/team/424345/join')
+        .set(token[1])
+    return response
+}
+
+async function nonExistingRequest() {
+    const response = await supertest(app)
+        .patch(`/requests/876876876`)
+        .set(token[0])
+        .send({
+            approved: false
+        })
+    return response
+}
+
 async function acceptTeamJoin(request) {
     const response = await supertest(app)
         .patch(`/requests/${request.body[0].id}`)
@@ -193,14 +215,14 @@ async function applyToLeaveTeam() {
 }
 async function playersByTeam() {
     const users = await supertest(app)
-        .get('/team/2/players')
+        .get('/team/1/players')
         .set(token[0])
     return users
 }
 
 async function kickUserFromTeam(id) {
     const kick = await supertest(app)
-        .delete('/team/2/kick')
+        .delete('/team/1/kick')
         .set(token[0])
         .send({
             userId: id,
@@ -209,10 +231,26 @@ async function kickUserFromTeam(id) {
     return kick
 }
 
+function closeConnection() {
+    db.sequelize.close()
+}
+async function deleteTestUser() {
+    await User.destroy({
+        where: {
+            name: 'fortestpurpose'
+        }
+    })
+}
+
 
 
 
 module.exports = {
+    deleteTestUser,
+    closeConnection,
+    declineRequest,
+    nonExistingRequest,
+    nonExistingTeam,
     playersByTeam,
     kickUserFromTeam,
     applyToLeaveTeam,
@@ -220,7 +258,7 @@ module.exports = {
     registerUser,
     acceptTeamJoin,
     applyToJoinTeam,
-    getManager,
+    getUser,
     updateInfo,
     createRequest,
     viewMyRequests,

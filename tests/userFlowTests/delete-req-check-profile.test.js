@@ -37,4 +37,7 @@ describe('user requests manipulate', () => {
             })
         )
     })
+    afterAll(() => {
+        service.closeConnection()
+    })
 })

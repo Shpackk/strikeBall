@@ -118,5 +118,7 @@ describe('End to end user join and leave team flow', () => {
         expect(profileWithoutTeam.body).toBeDefined()
         expect(profileWithoutTeam.body).toMatchObject({ Team: null })
     })
-
+    afterAll(() => {
+        service.closeConnection()
+    })
 })
