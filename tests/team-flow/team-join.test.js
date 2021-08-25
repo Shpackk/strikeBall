@@ -70,7 +70,8 @@ describe('solving team requests', () => {
     })
 })
 
-afterAll(() => {
+afterAll(async () => {
+    await service.testUserDelete('fortestpurpose')
     service.closeConnection()
 })
 

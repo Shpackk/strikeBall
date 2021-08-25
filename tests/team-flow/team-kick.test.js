@@ -2,8 +2,8 @@
 const service = require('../helpService')
 
 
-
 describe("Get on /team/id/players, delete on /team/id/kick", () => {
+
     test('should extract users in team and kick user', async () => {
         const ApplyToTeam = await service.applyToJoinTeam()
         expect(ApplyToTeam.statusCode).toEqual(200)
@@ -37,7 +37,7 @@ describe("Get on /team/id/players, delete on /team/id/kick", () => {
                 message: expect.any(String)
             })
         )
-        //09808098098
+
         const players = await service.playersByTeam()
         expect(players.statusCode).toBe(200)
         expect(players.body).toBeDefined()
@@ -52,7 +52,8 @@ describe("Get on /team/id/players, delete on /team/id/kick", () => {
             })
         )
     })
-    afterAll(() => {
+    afterAll(async () => {
+        await service.testUserDelete('fortestpurpose')
         service.closeConnection()
     })
 })

@@ -81,16 +81,9 @@ describe('Post on /signup', () => {
     })
 
     afterAll(async () => {
-        await User.destroy({
-            where: {
-                email: credentials + "@google.com"
-            }
-        })
-        await User.destroy({
-            where: {
-                email: 'testfromjest@google.com'
-            }
-        })
+        await service.testUserDelete('fortestpurpose')
+        await service.testUserDelete('testfromjest')
+        await service.testUserDelete(credentials)
         service.closeConnection()
     })
 })

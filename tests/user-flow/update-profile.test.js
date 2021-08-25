@@ -1,5 +1,4 @@
 const service = require('../helpService')
-const { User } = require('../../models/index')
 
 describe('patch on /user/update', () => {
     const creds = service.generateCreds()
@@ -26,12 +25,10 @@ describe('patch on /user/update', () => {
     })
 
     afterAll(async () => {
-        await User.destroy({
-            where: {
-                name: creds
-            }
-        })
+        await service.testUserDelete(creds)
+        await service.testUserDelete('fortestpurpose')
         service.closeConnection()
     })
 })
+
 

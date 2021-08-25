@@ -5,7 +5,6 @@
 //4. unban user
 const service = require('../helpService')
 
-
 describe('POST on /user/:id/ban', () => {
 
     test('get random user, ban, check if ban-field is not empty', async () => {
@@ -72,7 +71,8 @@ describe('POST on /user/:id/ban', () => {
         )
 
     })
-    afterAll(() => {
+    afterAll(async () => {
+        await service.testUserDelete('fortestpurpose')
         service.closeConnection()
     })
 })

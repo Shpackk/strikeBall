@@ -37,7 +37,8 @@ describe('user requests manipulate', () => {
             })
         )
     })
-    afterAll(() => {
+    afterAll(async () => {
+        await service.testUserDelete('fortestpurpose')
         service.closeConnection()
     })
 })

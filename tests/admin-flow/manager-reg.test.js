@@ -1,5 +1,4 @@
 const service = require('../helpService')
-const { User } = require('../../models/index')
 
 describe('Manager registration and checking if he is added to all managers', () => {
     const creds = service.generateCreds()
@@ -42,11 +41,9 @@ describe('Manager registration and checking if he is added to all managers', () 
 
     })
     afterAll(async () => {
-        await User.destroy({
-            where: {
-                name: creds
-            }
-        })
+        await service.testUserDelete('fortestpurpose')
+        await service.testUserDelete(creds)
+
         service.closeConnection()
     })
 })

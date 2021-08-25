@@ -1,6 +1,8 @@
 const app = require('../app')
 const supertest = require('supertest')
 const db = require('../models/index')
+const { User } = require('../models/index')
+
 
 
 beforeAll(async () => {
@@ -11,9 +13,11 @@ beforeAll(async () => {
             password: 'admin'
         })
     const user = await supertest(app)
-        .post('/login')
+        .post('/signup')
         .send({
             name: 'fortestpurpose',
+            email: 'fortestpurpose@gmail.com',
+            role: 'user',
             password: 'admin'
         })
     return token = [
@@ -231,22 +235,39 @@ async function kickUserFromTeam(id) {
     return kick
 }
 
-function closeConnection() {
-    db.sequelize.close()
-}
-async function deleteTestUser() {
+async function testUserDelete(name) {
     await User.destroy({
         where: {
-            name: 'fortestpurpose'
+            name
         }
     })
 }
 
+async function loginUser(name, password) {
+    const response = await supertest(app)
+        .post("/login")
+        .send({
+            name,
+            password
+        })
+    return response
+}
 
+async function createTestUsers(user) {
+    return await User.create(user)
+}
+
+
+
+function closeConnection() {
+    db.sequelize.close()
+}
 
 
 module.exports = {
-    deleteTestUser,
+    loginUser,
+    createTestUsers,
+    testUserDelete,
     closeConnection,
     declineRequest,
     nonExistingRequest,
