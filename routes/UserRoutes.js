@@ -4,6 +4,7 @@ const passport = require('passport');
 const userController = require('../controller/userController')
 const role = require('../middleware/requireAdmin')
 const multer = require('../service/staticFilesHandler')
+const getController = require('../controller/getController')
 require('../config/passportJWT')
 require('../config/passportGoogle')
 
@@ -15,7 +16,6 @@ router.get('/requests', passport.authenticate('jwt', { session: false }), role.r
 router.post('/user/forgot-password', userController.forgotPassword)
 
 router.post('/user/reset-password/:accessToken', userController.resetPassword)
-
 
 router.patch('/user/update', multer.single('picture'), passport.authenticate('jwt', { session: false }), userController.userInfoUpdate)
 
@@ -37,5 +37,8 @@ router.post('/user/:id/ban', passport.authenticate('jwt', { session: false }), r
 
 router.get('/manager/:id', passport.authenticate('jwt', { session: false }), role.requireAdmin, userController.viewManagerById)
 
+router.get('/home', getController.home)
+
+router.get('/login', getController.login)
 
 module.exports = router;
