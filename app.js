@@ -10,13 +10,11 @@ const path = require('path')
 require('dotenv').config()
 const PORT = process.env.PORT || 3000
 
-
 app.set('view engine', 'ejs')
 app.use(express.urlencoded({ extended: true }))
 app.use(passport.initialize())
 app.use('uploads/', express.static(path.join(__dirname, 'uploads')))
 app.use(express.static(path.join(__dirname, 'static')))
-
 app.use(express.json())
 app.use(userRoutes)
 app.use(teamRoutes)
@@ -30,9 +28,9 @@ db.sequelize.sync()
     .then(() => console.log('DB is synced!'))
     .catch(err => console.log(err))
 
-// app listening 
-// app.listen(PORT)
 if (process.env.NODE_ENV !== 'test') {
     app.listen(PORT);
 }
+
 module.exports = app
+
