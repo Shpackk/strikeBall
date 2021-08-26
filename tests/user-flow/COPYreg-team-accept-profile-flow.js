@@ -22,7 +22,6 @@ describe('flow of registration, join team, accept, viewing team field in profile
                 roleId: expect.any(Number),
                 token: expect.any(String)
             })
-
         )
 
         const ApplyToTeam = await service.applyToJoinTeam(credentials.body.token)

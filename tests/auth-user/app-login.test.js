@@ -29,7 +29,7 @@ describe('POST on /login', () => {
         })
     })
 
-    test("Should return users credentials when logging in ", async () => {
+    test("Should return users credentials when logging in", async () => {
         const response = await service.loginUser(testManager.name, 'manager')
         expect(response.statusCode).toBeCloseTo(200)
         expect(response.headers['content-type']).toEqual(expect.stringContaining('json'))
