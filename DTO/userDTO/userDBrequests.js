@@ -368,11 +368,41 @@ async function getUsersByTeam(teamId) {
     }
 }
 
+async function findAdminId() {
+    try {
+        const adminId = await User.findOne({
+            where: {
+                RoleId: 3
+            },
+            attributes: ['id']
+        })
+        return adminId
+    } catch (error) {
+        throw error
+    }
+}
+
 module.exports = {
-    createUser, deleteUser, updateUser, findOneById, findOneUser,
-    createUserGoogle, findAllUsers, findOneByName, findAllManagers,
-    findOneByEmail, updatePassword, newRequest, extractRequests,
-    acceptRequest, clearRequest, findRequest, acceptTeamJoin,
-    acceptTeamLeave, extractUserRequest, getUsersByTeam,
-    findOneManager
+    createUser,
+    deleteUser,
+    newRequest,
+    updateUser,
+    findRequest,
+    findOneUser,
+    findAdminId,
+    findOneById,
+    clearRequest,
+    findAllUsers,
+    findOneByName,
+    acceptRequest,
+    getUsersByTeam,
+    acceptTeamJoin,
+    findOneByEmail,
+    updatePassword,
+    findOneManager,
+    acceptTeamLeave,
+    findAllManagers,
+    extractRequests,
+    createUserGoogle,
+    extractUserRequest,
 }
