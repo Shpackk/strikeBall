@@ -5,6 +5,7 @@ const check = require('../middleware/inputVerify')
 const token = require('../DTO/userDTO/userTokenControll')
 const mailer = require('../service/mailMessageHandler')
 const bcrypt = require('bcrypt')
+const socket = require('../service/socketMessaging')
 
 // to view all users
 async function viewUsers(req, res, next) {
@@ -36,6 +37,7 @@ async function deleteUser(req, res, next) {
 // view one user by id
 async function viewOneById(req, res, next) {
     const userId = req.params.id
+
     try {
         const user = await dbRequest.findOneById(userId)
         if (user == null) {
@@ -77,10 +79,7 @@ async function userInfoUpdate(req, res, next) {
         check.inputValidation(newUserInfo)
         const isUserNameTaken = newUserInfo.name ? await dbRequest.findOneByName(newUserInfo.name) : null
         if (isUserNameTaken) {
-            const error = {
-                "msg": "taken name"
-            }
-            throw error
+            next({ "msg": "taken name" })
         }
         if (newUserInfo.hasOwnProperty('newPassword')) {
             if (newUserInfo.newPassword == newUserInfo.confirmPassword) {
@@ -204,6 +203,8 @@ async function populateRequest(req, res, next) {
                 default:
                     break;
             }
+            await socket.findAndNotify(request.dataValues.userEmail, 'Join')
+            socket.notificationForAdmin(`${request.dataValues.userEmail} joined team`)
             mailer.sandMail(request.dataValues.userEmail, 'TeamJoin', approved)
             res.status(200).json({ "message": `Decision for ${request.dataValues.userEmail} request is set to ${approved}` })
         }
@@ -218,6 +219,8 @@ async function populateRequest(req, res, next) {
                 default:
                     break;
             }
+            await socket.findAndNotify(request.dataValues.userEmail, 'TeamLeave')
+            socket.notificationForAdmin(`${request.dataValues.userEmail} left team`)
             mailer.sandMail(request.dataValues.userEmail, 'TeamLeave', approved)
             res.json({ "message": `Decision for ${request.dataValues.userEmail} request is set to ${approved}` })
         }
