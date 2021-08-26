@@ -6,6 +6,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
     <title>StrikeBall</title>
+<style>
+    div{
+        height: 100px;
+        width: 400px;
+        border: 1px solid red;
+        font-size: 40px;
+        padding-top: 20px;
+        font-weight: bold;
+        color: brown;
+    }
+</style>
 </head>
 <body>
         <nav>
@@ -26,5 +37,23 @@
         </nav>
         <a href="/auth/google">Auth via Google</a><br>
         <a href="/auth/facebook">Auth via FaceBook</a>
+        <div id="notific"></div>
+        
+
+        <script src="http://localhost:3001/socket.io/socket.io.js"></script>
+        <script>
+            const socket = io('http://localhost:3001')
+                const notificationDiv = document.querySelector('div')
+                const unicUsersEvent = sessionStorage.getItem('id')
+                
+                socket.emit('connection')
+                socket.on(unicUsersEvent, msg => {
+                    drawMsg(msg)
+                })
+        
+                function drawMsg(msg) {
+                    notificationDiv.textContent = msg
+                }
+        </script>
 </body>
 </html>

@@ -145,8 +145,8 @@ body {
             })
             if(data){
                 const jsonData = await data.json()
-                // console.log(jsonData)
                 sessionStorage.setItem('token', jsonData.token)
+                sessionStorage.setItem('id', jsonData.id)
                 location.assign('/home')
             }
         } catch (error) {
