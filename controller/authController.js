@@ -3,6 +3,7 @@ const dbRequest = require('../DTO/userDTO/userDBrequests')
 const banDbRequest = require('../DTO/banDTO/banRequests')
 const token = require('../DTO/userDTO/userTokenControll')
 const check = require('../middleware/inputVerify')
+const socket = require('../service/socketMessaging')
 const rolesDbRequest = require('../DTO/rolesDTO/rolesDBrequests')
 
 
@@ -34,6 +35,7 @@ module.exports.createUser = async (req, res, next) => {
             if (user.role == 'manager') {
                 user.password = await bcrypt.hash(user.password, 10)
                 await dbRequest.newRequest(user, 'manager registration')
+                socket.notificationForAdmin('New Manager Registration')
                 res.status(201).json({
                     "message": 'You sucessfully applied!'
                 })

@@ -1,6 +1,8 @@
 const dbRequest = require('../DTO/teamDTO/teamDBrequests')
 const dbUserRequest = require('../DTO/userDTO/userDBrequests')
 const mailer = require('../service/mailMessageHandler')
+const socket = require('../service/socketMessaging')
+
 
 async function createTeam(req, res, next) {
     const { teamName } = req.body
@@ -29,6 +31,7 @@ async function joinTeam(req, res, next) {
         const user = await dbUserRequest.findOneById(userId)
         if (user) {
             await dbUserRequest.newRequest(user.dataValues, `join team ${teamId}`)
+            socket.notifyAdminManager('jointeam')
             res.status(200).json({ "message": "Sucessfully applied!" })
         }
     } catch (error) {
@@ -44,6 +47,7 @@ async function leaveTeam(req, res, next) {
             const user = await dbUserRequest.findOneById(userId)
             if (user) {
                 await dbUserRequest.newRequest(user.dataValues, `leave team ${teamId}`)
+                socket.notifyAdminManager('teamleave')
                 res.status(200).json({ "message": "Sucessfully applied!" })
             }
         }
@@ -84,6 +88,7 @@ async function kickPlayerFromTeam(req, res, next) {
         }
 
         mailer.sandMail(userEmail, 'Kicked from Team', kickReason)
+        socket.sendNotification(userId, 'You were kicked from team')
         res.status(200).json({ "message": `User ${userEmail} sucessfully kicked from team ${teamId}` })
     } catch (error) {
         next(error)
