@@ -1,4 +1,4 @@
-const { Banlist, User } = require('../../models/index')
+const { Banlist } = require('../../models/index')
 
 async function isBanned(userEmail) {
     try {
