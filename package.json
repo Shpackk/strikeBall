@@ -9,7 +9,7 @@
   "description": "pet project",
   "main": "app.js",
   "scripts": {
-    "test": "jest --maxWorkers=1",
+    "test": "jest --forceExit --maxWorkers=1",
     "seed": "npx sequelize db:seed:all",
     "migrate": "npx sequelize db:migrate",
     "dev": "nodemon app.js"
