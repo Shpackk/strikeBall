@@ -1,6 +1,5 @@
 const { Role } = require('../models/index')
 
-
 async function requireAdmin(req, res, next) {
     try {
         validToken(req.user.roleId)
