@@ -27,15 +27,6 @@ describe('POST on /user/:id/ban', () => {
         expect(bannedUser.body).toBeDefined()
         expect(bannedUser.body).toEqual(
             expect.objectContaining({
-                id: expect.any(Number),
-                email: expect.any(String),
-                name: expect.any(String),
-                picture: expect.anything(),
-                Team: null,
-                Role: expect.objectContaining({
-                    id: expect.any(Number),
-                    role: expect.any(String)
-                }),
                 Banlist: expect.objectContaining({
                     description: expect.any(String)
                 })
@@ -57,15 +48,6 @@ describe('POST on /user/:id/ban', () => {
         expect(unBannedUser.body).toBeDefined()
         expect(unBannedUser.body).toEqual(
             expect.objectContaining({
-                id: expect.any(Number),
-                email: expect.any(String),
-                name: expect.any(String),
-                picture: expect.anything(),
-                Team: null,
-                Role: expect.objectContaining({
-                    id: expect.any(Number),
-                    role: expect.any(String)
-                }),
                 Banlist: null
             })
         )

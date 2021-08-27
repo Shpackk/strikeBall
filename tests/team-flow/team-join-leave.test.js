@@ -3,7 +3,7 @@ const service = require('../helpService')
 
 describe('End to end user join and leave team flow', () => {
 
-    test('should work idk', async () => {
+    test('should sucessfully accept team join and kick from after', async () => {
         //1.apply to join team
         const ApplyToTeam = await service.applyToJoinTeam()
         expect(ApplyToTeam.statusCode).toEqual(200)
