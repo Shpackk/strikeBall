@@ -55,7 +55,7 @@ async function leaveTeam(req, res, next) {
             const error = {
                 "msg": 'not in team'
             }
-            throw error
+            next(error)
         }
     } catch (error) {
         next(error)
@@ -84,10 +84,10 @@ async function kickPlayerFromTeam(req, res, next) {
             const error = {
                 msg: 'teamkick'
             }
-            throw error
+            next(error)
         }
 
-        mailer.sandMail(userEmail, 'Kicked from Team', kickReason)
+        await mailer.sandMail(userEmail, 'Kicked from Team', kickReason)
         socket.sendNotification(userId, 'You were kicked from team')
         res.status(200).json({ "message": `User ${userEmail} sucessfully kicked from team ${teamId}` })
     } catch (error) {
