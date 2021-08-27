@@ -19,11 +19,11 @@ async function notificationForAdmin(msg) {
 
 async function findAndNotify(email, type) {
     const user = await dbReq.findOneByEmail(email)
-    io.emit(user.dataValues.id, `${type} sucessfull`)
+    io.emit(user.id, `${type} sucessfull`)
 }
 
 async function notifyAdminManager(type) {
-    notificationForAdmin(type)
+    await notificationForAdmin(type)
     const managers = await dbReq.findAllManagers()
     managers.forEach(manager => {
         io.emit(manager.id, type)
@@ -35,21 +35,3 @@ server.listen(3001, () => {
 })
 
 module.exports = { sendNotification, notificationForAdmin, findAndNotify, notifyAdminManager }
-
-
-
-
-
-
-
-
-    // sendNotification(22, 'sdjkfdksjf')
-    // const userToSend = 22
-    // socket.on('joinroom', name => {
-    //     socket.join(name)
-    //     // const iterator = socket.rooms.values()
-    //     // iterator.next()
-    //     // const userId = iterator.next()
-    //     io.emit(userToSend, 'jdhflkajhdflka')
-    // })
-    // io.emit(userToSend, 'jdhflkajhdflka')
