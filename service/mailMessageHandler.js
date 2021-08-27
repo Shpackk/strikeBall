@@ -22,7 +22,9 @@ async function sandMail(email, topic, description) {
     if (process.env.NODE_ENV !== 'test') {
         console.log("Message sent: %s", info.messageId);
         console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+        console.log('Email message : ', msg)
     }
+
 }
 
 function generateMessage(topic, description) {
@@ -32,14 +34,14 @@ function generateMessage(topic, description) {
     if (topic == "unban") {
         return `Dear player! Your account has been unbanned due to ${description}`
     }
-    if (topic == "TeamLeave") {
+    if (topic.includes('leave')) {
         if (description == true) {
             return `Dear player! You sucessfully left your team`
         } else {
             return `Dear player! Sorry but we declined your request to leave`
         }
     }
-    if (topic == "TeamJoin") {
+    if (topic.includes('join')) {
         if (description == true) {
             return `Dear player, You joined a new team! Good Luck and Have Fun!`
         }
@@ -53,7 +55,7 @@ function generateMessage(topic, description) {
     if (topic == "Password Reset") {
         return `Follow this link to reset your password - ${description}`
     }
-    if (topic == "Registration") {
+    if (topic == "manager registration") {
         const msg = description ? "Your registration was approved" : "Your registration was declined"
         return msg
     }
