@@ -4,8 +4,8 @@ const banDbRequest = require('../DTO/banDTO/banRequests')
 const check = require('../middleware/inputVerify')
 const token = require('../DTO/userDTO/userTokenControll')
 const mailer = require('../service/mailMessageHandler')
-const bcrypt = require('bcrypt')
 const socket = require('../service/socketMessaging')
+const passControl = require('../DTO/userDTO/passwordControll')
 
 // to view all users
 async function viewUsers(req, res, next) {
@@ -30,25 +30,28 @@ async function deleteUser(req, res, next) {
         const result = await dbRequest.deleteUser(userId)
         res.status(202).json(result + " Deleted")
     } catch (error) {
-        throw (error)
+        next(error)
     }
 }
 
 // view one user by id
 async function viewOneById(req, res, next) {
-    const userId = req.params.id
-
+    let userId
+    req.params.id ?
+        userId = req.params.id
+        : userId = req.user.id
     try {
         const user = await dbRequest.findOneById(userId)
         if (user == null) {
-            throw error
+            next({ status: 404 })
+        } else {
+            res.status(200).json(user)
         }
-        res.status(200).json(user)
     } catch (error) {
-        error.status = 404
         next(error)
     }
 }
+
 
 //all managers view
 async function viewManagers(req, res, next) {
@@ -83,7 +86,7 @@ async function userInfoUpdate(req, res, next) {
         }
         if (newUserInfo.hasOwnProperty('newPassword')) {
             if (newUserInfo.newPassword == newUserInfo.confirmPassword) {
-                const password = await bcrypt.hash(newUserInfo.confirmPassword, 10)
+                const password = await passControl.hash(newUserInfo.confirmPassword, 10)
                 delete newUserInfo.newPassword
                 delete newUserInfo.confirmPassword
                 newUserInfo.password = password
@@ -126,38 +129,19 @@ async function resetPassword(req, res, next) {
         const verifiedToken = token.verifyForReset(accessToken)
         if (verifiedToken) {
             if (user.newPass == user.confirmPass) {
-                const hashedPassword = await bcrypt.hash(user.confirmPass, 10)
+                const hashedPassword = await passControl.hash(user.confirmPass, 10)
                 await dbRequest.updatePassword(verifiedToken.id, hashedPassword)
                 res.json({
                     "message": "Your password has been changed successfully "
                 })
-            } else {
-                const error = {
-                    "msg": "missmatch"
-                }
-                throw error
-            }
+            } else next({ "msg": "missmatch" })
         }
-        throw error
+        next({ "msg": "Bad token" })
     } catch (error) {
         next(error)
     }
 }
 
-async function profile(req, res, next) {
-    try {
-        const user = await dbRequest.findOneById(req.user.id)
-        if (!user) {
-            const error = {
-                'status': 404
-            }
-            throw error
-        }
-        res.status(200).json(user)
-    } catch (error) {
-        next(error)
-    }
-}
 
 async function getRequests(req, res, next) {
     try {
@@ -173,11 +157,8 @@ async function populateRequest(req, res, next) {
     const approved = req.body.approved
     try {
         const request = await dbRequest.findRequest(requestId)
-        if (!request) {
-            throw error = {
-                status: 404
-            }
-        }
+        if (!request) throw { status: 404 }
+
         if (request.dataValues.requestType == 'manager registration') {
             switch (approved) {
                 case true:
@@ -189,8 +170,6 @@ async function populateRequest(req, res, next) {
                 default:
                     break;
             }
-            mailer.sandMail(request.dataValues.userEmail, 'Registration', approved)
-            res.status(200).json({ "message": `Decision for ${request.dataValues.userEmail} request is set to ${approved}` })
         }
         if (request.dataValues.requestType.includes('join')) {
             switch (approved) {
@@ -204,9 +183,7 @@ async function populateRequest(req, res, next) {
                     break;
             }
             await socket.findAndNotify(request.dataValues.userEmail, 'Join')
-            socket.notificationForAdmin(`${request.dataValues.userEmail} joined team`)
-            mailer.sandMail(request.dataValues.userEmail, 'TeamJoin', approved)
-            res.status(200).json({ "message": `Decision for ${request.dataValues.userEmail} request is set to ${approved}` })
+            await socket.notificationForAdmin(`${request.dataValues.userEmail} joined team`)
         }
         if (request.dataValues.requestType.includes('leave')) {
             switch (approved) {
@@ -220,11 +197,10 @@ async function populateRequest(req, res, next) {
                     break;
             }
             await socket.findAndNotify(request.dataValues.userEmail, 'TeamLeave')
-            socket.notificationForAdmin(`${request.dataValues.userEmail} left team`)
-            mailer.sandMail(request.dataValues.userEmail, 'TeamLeave', approved)
-            res.json({ "message": `Decision for ${request.dataValues.userEmail} request is set to ${approved}` })
+            await socket.notificationForAdmin(`${request.dataValues.userEmail} left team`)
         }
-
+        await mailer.sandMail(request.dataValues.userEmail, request.dataValues.requestType, approved)
+        res.status(200).json({ "message": `Decision for ${request.dataValues.userEmail} request is set to ${approved}` })
     } catch (error) {
         next(error)
     }
@@ -254,11 +230,8 @@ async function userDeleteRequest(req, res, next) {
             res.status(200).json({
                 "message": "Request is sucessfully deleted"
             })
-        } else {
-            throw error
-        }
+        } else next({ status: 404 })
     } catch (error) {
-        error.status = 404
         next(error)
     }
 }
@@ -270,10 +243,7 @@ async function banUser(req, res, next) {
     try {
         const user = await dbRequest.findOneById(userId)
         if (user == null) {
-            const error = {
-                status: 404
-            }
-            throw error
+            throw { status: 404 }
         }
         const isBanned = await banDbRequest.isBanned(user.dataValues.email)
         switch (typeLowerCase) {
@@ -302,7 +272,6 @@ async function banUser(req, res, next) {
 }
 
 module.exports = {
-    profile,
     banUser,
     viewUsers,
     deleteUser,
