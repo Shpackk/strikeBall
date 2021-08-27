@@ -187,6 +187,14 @@ async function updatePassword(id, password) {
 
 // create request
 async function newRequest(user, type) {
+    let request = {
+        status: 'active',
+        userEmail: user.email,
+        userName: user.name,
+        requestType: type,
+        UserId: user.id
+    }
+    request.userPass = (type == 'manager registration') ? user.password : null
     try {
         const found = await Request.findOne({
             where: {
@@ -199,25 +207,7 @@ async function newRequest(user, type) {
             }
             throw error
         }
-        if (type == 'manager registration') {
-            await Request.create({
-                status: 'active',
-                userEmail: user.email,
-                userName: user.name,
-                userPass: user.password,
-                requestType: type,
-                UserId: user.id
-            })
-        }
-        if (type != 'manager registration') {
-            await Request.create({
-                status: 'active',
-                userEmail: user.email,
-                userName: user.name,
-                requestType: type,
-                UserId: user.id
-            })
-        }
+        await Request.create(request)
     } catch (error) {
         throw error
     }
