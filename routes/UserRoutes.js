@@ -21,7 +21,7 @@ router.patch('/user/update', multer.single('picture'), passport.authenticate('jw
 
 router.get('/user/requests', passport.authenticate('jwt', { session: false }), userController.userOwnRequests)
 
-router.get('/user/profile', passport.authenticate('jwt', { session: false }), userController.profile)
+router.get('/user/profile', passport.authenticate('jwt', { session: false }), userController.viewOneById)
 
 router.delete('/user/requests/delete/:id', passport.authenticate('jwt', { session: false }), userController.userDeleteRequest)
 
