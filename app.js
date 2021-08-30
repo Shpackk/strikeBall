@@ -25,7 +25,7 @@ app.get('*', function (req, res) {
 });
 
 db.sequelize.sync()
-    .then(() => console.log('DB is synced!'))
+    .then(() => console.log('PostgreSQL is synced!'))
     .catch(err => console.log(err))
 
 if (process.env.NODE_ENV !== 'test') {
