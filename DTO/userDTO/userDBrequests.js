@@ -271,7 +271,7 @@ async function clearRequest(reqId) {
     }
 }
 
-async function acceptTeamJoin(requestId, userEmail, requestType) {
+async function updateTeamStatus(requestId, userEmail, requestType) {
     const teamId = requestType.match(/\d+/)[0]
     try {
         await clearRequest(requestId)
@@ -281,24 +281,12 @@ async function acceptTeamJoin(requestId, userEmail, requestType) {
             },
             returning: true
         })
-        await checkInAnotherTeam(teamId, user[1][0].dataValues.id)
-        return await teamDbRequest.addToTeam(user[1][0].dataValues.id, teamId)
-    } catch (error) {
-        throw error
-    }
-}
-
-async function acceptTeamLeave(requestId, userEmail, requestType) {
-    const teamId = requestType.match(/\d+/)[0]
-    try {
-        await clearRequest(requestId)
-        const user = await User.update({ TeamId: teamId }, {
-            where: {
-                email: userEmail
-            },
-            returning: true
-        })
-        return await teamDbRequest.deleteFromTeam(user[1][0].dataValues.id, teamId)
+        if (requestType.includes('join')) {
+            await checkInAnotherTeam(teamId, user[1][0].dataValues.id)// 1
+            return await teamDbRequest.addToTeam(user[1][0].dataValues.id, teamId)// 2
+        } else {
+            return await teamDbRequest.deleteFromTeam(user[1][0].dataValues.id, teamId)
+        }
     } catch (error) {
         throw error
     }
@@ -386,13 +374,12 @@ module.exports = {
     findOneByName,
     acceptRequest,
     getUsersByTeam,
-    acceptTeamJoin,
     findOneByEmail,
     updatePassword,
     findOneManager,
-    acceptTeamLeave,
     findAllManagers,
     extractRequests,
+    updateTeamStatus,
     createUserGoogle,
     extractUserRequest,
 }
