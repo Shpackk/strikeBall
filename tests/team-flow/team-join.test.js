@@ -13,9 +13,6 @@ describe('Team join request', () => {
             })
         )
     })
-})
-
-describe('Non-existing team join', () => {
 
     test('should return error message for bad request', async () => {
         const response = await service.nonExistingTeam()
@@ -39,10 +36,6 @@ describe('Non-existing team join', () => {
             })
         )
     })
-})
-
-
-describe('solving team requests', () => {
 
     test('inform about error pointint to non-existing request', async () => {
         const response = await service.nonExistingRequest()

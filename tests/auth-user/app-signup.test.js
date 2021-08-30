@@ -1,16 +1,16 @@
 const app = require('../../app')
 const supertest = require('supertest')
 const service = require('../helpService')
-const { User } = require('../../models/index')
+const { Banlist } = require('../../models/index')
+const data = require('../testUsersData')
 
 
 beforeAll(async () => {
-    await User.create({
-        name: "testfromjest",
-        email: "testfromjest@google.com",
-        role: "user",
-        password: '$2b$10$3j2skdg8UdkUZkYbX0nc1.Ly4TEfCR09AMyqcjyDxv/yMHA532BXi',
-        picture: null
+    const user = await service.createTestUsers()
+    await Banlist.create({
+        userId: user.dataValues.id,
+        description: 'sorry',
+        userEmail: user.dataValues.email
     })
 })
 
@@ -79,11 +79,41 @@ describe('Post on /signup', () => {
             })
         )
     })
+    ///;kjfhglskjdfhglskjfhglskjfdhglskfjdhgslkdfjh
+    test("Should return users credentials when logging in", async () => {
+        const response = await service.loginUser(data.testManager.name, data.testManager.password)
+        expect(response.statusCode).toBe(201)
+        expect(response.headers['content-type']).toEqual(expect.stringContaining('json'))
+        expect(response.body).toBeDefined()
+        expect(response.body).toEqual(
+            expect.objectContaining({
+                id: expect.any(Number),
+                name: expect.any(String),
+                roleId: expect.any(Number),
+                token: expect.any(String)
+            })
+        )
+    })
+
+    test("Should inform that user is banned from service", async () => {
+        const response = await service.loginUser(data.testUser.name, data.testUser.password)
+        expect(response.statusCode).toBe(403)
+        expect(response.headers['content-type']).toEqual(expect.stringContaining('json'))
+        expect(response.body).toBeDefined()
+        expect(response.body).toEqual(expect.any(Object))
+    })
 
     afterAll(async () => {
-        await service.testUserDelete('fortestpurpose')
-        await service.testUserDelete('testfromjest')
+        await service.testUserDelete(data.AnotherUser.name)
+        await service.testUserDelete(data.testUserTwo.name)
         await service.testUserDelete(credentials)
+        await service.testUserDelete(data.testManager.name)
+        await Banlist.destroy({
+            where: {
+                userEmail: data.testUser.email
+            }
+        })
+        await service.testUserDelete(data.testUser.name)
         service.closeConnection()
     })
 })

@@ -2,24 +2,16 @@ const app = require('../app')
 const supertest = require('supertest')
 const db = require('../models/index')
 const { User } = require('../models/index')
-
-
+const data = require('../tests/testUsersData')
+const passControl = require('../DTO/userDTO/passwordControll')
 
 beforeAll(async () => {
     const admin = await supertest(app)
         .post('/login')
-        .send({
-            name: 'admin',
-            password: 'admin'
-        })
+        .send(data.adminCreds)
     const user = await supertest(app)
         .post('/signup')
-        .send({
-            name: 'fortestpurpose',
-            email: 'fortestpurpose@gmail.com',
-            role: 'user',
-            password: 'admin'
-        })
+        .send(data.AnotherUser)
     return token = [
         { token: admin.body.token },
         { token: user.body.token },
@@ -252,12 +244,17 @@ async function loginUser(name, password) {
         })
     return response
 }
+// 788888888888888888888888888888888
 
-async function createTestUsers(user) {
-    return await User.create(user)
+//7777777777777777777777777
+async function createTestUsers() {
+    data.testUserTwo.password = await passControl.hash(data.testUserTwo.password)
+    data.testUser.password = await passControl.hash(data.testUser.password)
+    data.testManager.password = await passControl.hash(data.testManager.password)
+    await User.create(data.testManager)
+    await User.create(data.testUserTwo)
+    return await User.create(data.testUser)
 }
-
-
 
 function closeConnection() {
     db.sequelize.close()
