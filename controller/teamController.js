@@ -2,6 +2,7 @@ const dbRequest = require('../DTO/teamDTO/teamDBrequests')
 const dbUserRequest = require('../DTO/userDTO/userDBrequests')
 const mailer = require('../service/mailMessageHandler')
 const socket = require('../service/socketMessaging')
+const mongoLog = require('../service/mongoLogsSaver.js')
 
 
 async function createTeam(req, res, next) {
@@ -34,6 +35,7 @@ async function joinTeam(req, res, next) {
             socket.notifyAdminManager('jointeam')
             res.status(200).json({ "message": "Sucessfully applied!" })
         }
+        await mongoLog.save(req.user.name, req.method, req.url, req.body)
     } catch (error) {
         next(error)
     }
@@ -57,6 +59,7 @@ async function leaveTeam(req, res, next) {
             }
             next(error)
         }
+        await mongoLog.save(req.user.name, req.method, req.url, req.body)
     } catch (error) {
         next(error)
     }
@@ -67,6 +70,7 @@ async function viewPlayersInTeam(req, res, next) {
     try {
         const users = await dbUserRequest.getUsersByTeam(teamId)
         res.status(200).json(users)
+        await mongoLog.save(req.user.name, req.method, req.url, req.body)
     } catch (error) {
         next(error)
     }
@@ -86,10 +90,10 @@ async function kickPlayerFromTeam(req, res, next) {
             }
             next(error)
         }
-
         await mailer.sandMail(userEmail, 'Kicked from Team', kickReason)
         socket.sendNotification(userId, 'You were kicked from team')
         res.status(200).json({ "message": `User ${userEmail} sucessfully kicked from team ${teamId}` })
+        await mongoLog.save(req.user.name, req.method, req.url, req.body)
     } catch (error) {
         next(error)
     }

@@ -5,6 +5,7 @@ const token = require('../DTO/userDTO/userTokenControll')
 const check = require('../middleware/inputVerify')
 const socket = require('../service/socketMessaging')
 const rolesDbRequest = require('../DTO/rolesDTO/rolesDBrequests')
+const mongoLog = require('../service/mongoLogsSaver.js')
 
 
 module.exports.createUser = async (req, res, next) => {
@@ -37,10 +38,11 @@ module.exports.createUser = async (req, res, next) => {
                 await dbRequest.newRequest(user, 'manager registration')
                 await socket.notificationForAdmin('New Manager Registration')
                 res.status(201).json({
-                    "message": 'You sucessfully applied!'
+                    message: 'You sucessfully applied!'
                 })
             }
-        } else next({ "status": 409 })
+        } else next({ status: 409 })
+        await mongoLog.save(user.name, req.method, req.url, req.body)
     } catch (error) {
         next(error)
     }
@@ -52,7 +54,7 @@ module.exports.loginUser = async (req, res, next) => {
         check.inputValidation(user)
         const userDB = await dbRequest.findOneByName(user.name)
         if (userDB == null)
-            throw { status: 404 }
+            return next({ status: 404 })
 
         const isBanned = await banDbRequest.isBanned(userDB.email)
         if (isBanned != null) {
@@ -69,6 +71,7 @@ module.exports.loginUser = async (req, res, next) => {
                 })
             } else next({ "msg": "wrong password" })
         }
+        await mongoLog.save(req.body.name, req.method, req.url, req.body)
     } catch (error) {
         next(error)
     }

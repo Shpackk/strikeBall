@@ -6,6 +6,7 @@ const token = require('../DTO/userDTO/userTokenControll')
 const mailer = require('../service/mailMessageHandler')
 const socket = require('../service/socketMessaging')
 const passControl = require('../DTO/userDTO/passwordControll')
+const mongoLog = require('../service/mongoLogsSaver.js')
 
 // to view all users
 async function viewUsers(req, res, next) {
@@ -18,6 +19,7 @@ async function viewUsers(req, res, next) {
             const users = await dbRequest.getUsersByTeam(teamid)
             res.status(200).json(users)
         }
+        await mongoLog.save(req.user.name, req.method, req.url, req.body)
     } catch (error) {
         next(error)
     }
@@ -29,6 +31,7 @@ async function deleteUser(req, res, next) {
     try {
         const result = await dbRequest.deleteUser(userId)
         res.status(202).json(result + " Deleted")
+        await mongoLog.save(req.user.name, req.method, req.url, req.body)
     } catch (error) {
         next(error)
     }
@@ -47,6 +50,7 @@ async function viewOneById(req, res, next) {
         } else {
             res.status(200).json(user)
         }
+        await mongoLog.save(req.user.name, req.method, req.url, req.body)
     } catch (error) {
         next(error)
     }
@@ -58,6 +62,7 @@ async function viewManagers(req, res, next) {
     try {
         const managers = await dbRequest.findAllManagers()
         res.status(200).json(managers)
+        await mongoLog.save(req.user.name, req.method, req.url, req.body)
     } catch (error) {
         next(error)
     }
@@ -68,6 +73,7 @@ async function viewManagerById(req, res, next) {
     try {
         const manager = await dbRequest.findOneManager(managerId)
         res.json(manager)
+        await mongoLog.save(req.user.name, req.method, req.url, req.body)
     } catch (error) {
         next(error)
     }
@@ -97,6 +103,7 @@ async function userInfoUpdate(req, res, next) {
             const newProfile = await dbRequest.updateUser(newUserInfo, userId)
             res.json(newProfile)
         }
+        await mongoLog.save(req.user.name, req.method, req.url, req.body)
     } catch (error) {
         next(error)
     }
@@ -116,6 +123,7 @@ async function forgotPassword(req, res, next) {
             'message': 'Link has been sent to your email!',
             'time': 'Link expires in 15 minutes'
         })
+        await mongoLog.save(req.body.email, req.method, req.url, req.body)
     } catch (error) {
         next(error)
     }
@@ -137,6 +145,7 @@ async function resetPassword(req, res, next) {
             } else next({ "msg": "missmatch" })
         }
         next({ "msg": "Bad token" })
+        await mongoLog.save(req.user.name, req.method, req.url, req.body)
     } catch (error) {
         next(error)
     }
@@ -147,6 +156,7 @@ async function getRequests(req, res, next) {
     try {
         const requests = await dbRequest.extractRequests(req.user.roleId)
         res.status(200).json(requests)
+        await mongoLog.save(req.user.name, req.method, req.url, req.body)
     } catch (error) {
         next(error)
     }
@@ -158,63 +168,34 @@ async function populateRequest(req, res, next) {
     try {
         const request = await dbRequest.findRequest(requestId)
         if (!request) throw { status: 404 }
-
-        if (request.dataValues.requestType == 'manager registration') {
-            switch (approved) {
-                case true:
-                    await dbRequest.acceptRequest(requestId, request.dataValues.userName, request.dataValues.userPass, request.dataValues.userEmail)
-                    break;
-                case false:
-                    await dbRequest.clearRequest(requestId)
-                    break;
-                default:
-                    break;
-            }
+        if ((request.dataValues.requestType == 'manager registration') && (approved)) {
+            await dbRequest.acceptRequest(requestId, request.dataValues.userName, request.dataValues.userPass, request.dataValues.userEmail)
         }
-        if (request.dataValues.requestType.includes('join')) {
-            switch (approved) {
-                case true:
-                    await dbRequest.acceptTeamJoin(requestId, request.dataValues.userEmail, request.dataValues.requestType)
-                    break;
-                case false:
-                    await dbRequest.clearRequest(requestId)
-                    break;
-                default:
-                    break;
-            }
-            await socket.findAndNotify(request.dataValues.userEmail, 'Join')
-            await socket.notificationForAdmin(`${request.dataValues.userEmail} joined team`)
+        else if ((request.dataValues.requestType.includes('team')) && (approved)) {
+            await dbRequest.updateTeamStatus(requestId, request.dataValues.userEmail, request.dataValues.requestType)
+            await socket.findAndNotify(request.dataValues.userEmail, request.dataValues.requestType)
+            await socket.notificationForAdmin(`${request.dataValues.userEmail} ${request.dataValues.requestType} sucessfull`)
         }
-        if (request.dataValues.requestType.includes('leave')) {
-            switch (approved) {
-                case true:
-                    await dbRequest.acceptTeamLeave(requestId, request.dataValues.userEmail, request.dataValues.requestType)
-                    break;
-                case false:
-                    await dbRequest.clearRequest(requestId)
-                    break;
-                default:
-                    break;
-            }
-            await socket.findAndNotify(request.dataValues.userEmail, 'TeamLeave')
-            await socket.notificationForAdmin(`${request.dataValues.userEmail} left team`)
+        else {
+            await dbRequest.clearRequest(requestId)
         }
-        await mailer.sandMail(request.dataValues.userEmail, request.dataValues.requestType, approved)
         res.status(200).json({ "message": `Decision for ${request.dataValues.userEmail} request is set to ${approved}` })
+        await mailer.sandMail(request.dataValues.userEmail, request.dataValues.requestType, approved)
+        await mongoLog.save(req.user.name, req.method, req.url, req.body)
     } catch (error) {
         next(error)
     }
-
 }
 
 async function userOwnRequests(req, res, next) {
     try {
         const request = await dbRequest.extractUserRequest(req.user.id)
         if (request.length < 1) {
-            res.status(200).json({
+            return res.status(200).json({
                 "message": "You have no active requests"
             })
         }
+        await mongoLog.save(req.user.name, req.method, req.url, req.body)
         res.status(200).json(request)
     } catch (error) {
         next(error)
@@ -222,6 +203,7 @@ async function userOwnRequests(req, res, next) {
 }
 
 async function userDeleteRequest(req, res, next) {
+    await mongoLog.save(req.user.name, req.method, req.url, req.body)
     const requestId = req.params.id
     try {
         const request = await dbRequest.findRequest(requestId)
@@ -264,6 +246,7 @@ async function banUser(req, res, next) {
                 res.status(409).json({ "message": "Unknown command" })
                 break;
         }
+        await mongoLog.save(req.user.name, req.method, req.url, req.body)
         mailer.sandMail(user.dataValues.email, typeLowerCase, description)
         res.status(200).json({ "message": `User ${user.dataValues.name} ${type} sucessfull` })
     } catch (error) {
