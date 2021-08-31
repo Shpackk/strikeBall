@@ -10,7 +10,7 @@ async function createTeam(req, res, next) {
     try {
         const createdTeam = await dbRequest.createTeam(teamName)
         res.json({
-            "message": `Team ${createdTeam.dataValues.name} created`,
+            message: `Team ${createdTeam.dataValues.name} created`,
         })
     } catch (error) {
         next(error)
@@ -24,16 +24,13 @@ async function joinTeam(req, res, next) {
     try {
         const checkInTeam = await dbRequest.checkUserInTeam(userId, teamId)
         if (checkInTeam) {
-            const error = {
-                "msg": 'already in team'
-            }
-            throw error
+            throw { msg: 'already in team' }
         }
         const user = await dbUserRequest.findOneById(userId)
         if (user) {
             await dbUserRequest.newRequest(user.dataValues, `join team ${teamId}`)
             socket.notifyAdminManager('jointeam')
-            res.status(200).json({ "message": "Sucessfully applied!" })
+            res.status(200).json({ message: "Sucessfully applied!" })
         }
         await mongoLog.save(req.user.name, req.method, req.url, req.body)
     } catch (error) {
@@ -50,15 +47,9 @@ async function leaveTeam(req, res, next) {
             if (user) {
                 await dbUserRequest.newRequest(user.dataValues, `leave team ${teamId}`)
                 socket.notifyAdminManager('teamleave')
-                res.status(200).json({ "message": "Sucessfully applied!" })
+                res.status(200).json({ message: "Sucessfully applied!" })
             }
-        }
-        if (checkInTeam == false) {
-            const error = {
-                "msg": 'not in team'
-            }
-            next(error)
-        }
+        } else throw { msg: 'not in team' }
         await mongoLog.save(req.user.name, req.method, req.url, req.body)
     } catch (error) {
         next(error)
@@ -85,14 +76,11 @@ async function kickPlayerFromTeam(req, res, next) {
         if (user.dataValues.Team) {
             await dbRequest.deleteFromTeam(userId, user.dataValues.Team.dataValues.id)
         } else {
-            const error = {
-                msg: 'teamkick'
-            }
-            next(error)
+            throw { msg: 'teamkick' }
         }
+        res.status(200).json({ "message": `User ${userEmail} sucessfully kicked from team ${teamId}` })
         await mailer.sandMail(userEmail, 'Kicked from Team', kickReason)
         socket.sendNotification(userId, 'You were kicked from team')
-        res.status(200).json({ "message": `User ${userEmail} sucessfully kicked from team ${teamId}` })
         await mongoLog.save(req.user.name, req.method, req.url, req.body)
     } catch (error) {
         next(error)

@@ -53,12 +53,12 @@ module.exports.loginUser = async (req, res, next) => {
     try {
         check.inputValidation(user)
         const userDB = await dbRequest.findOneByName(user.name)
-        if (userDB == null)
-            return next({ status: 404 })
-
+        if (userDB == null) {
+            throw { status: 404 }
+        }
         const isBanned = await banDbRequest.isBanned(userDB.email)
         if (isBanned != null) {
-            res.status(403).json({ "message": `${userDB.email}, we're sorry, but you are banned from our service` })
+            res.status(403).json({ message: `${userDB.email}, we're sorry, but you are banned from our service` })
         } else {
             const auth = await passControl.compare(user.password, userDB.password)
             if (auth) {
@@ -69,7 +69,7 @@ module.exports.loginUser = async (req, res, next) => {
                     roleId: userDB.RoleId,
                     token: accessToken
                 })
-            } else next({ "msg": "wrong password" })
+            } else next({ msg: "wrong password" })
         }
         await mongoLog.save(req.body.name, req.method, req.url, req.body)
     } catch (error) {
