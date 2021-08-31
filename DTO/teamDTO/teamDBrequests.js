@@ -87,10 +87,7 @@ async function checkUserInTeam(userId, teamId) {
             attributes: ['players']
         })
         if (teamDb == null) {
-            const error = {
-                msg: 'No such team'
-            }
-            throw error
+            throw { msg: 'No such team' }
         }
         if (teamDb.players == null) {
             return false
