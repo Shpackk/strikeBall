@@ -202,10 +202,7 @@ async function newRequest(user, type) {
             }
         })
         if (found) {
-            const error = {
-                "msg": "applied"
-            }
-            throw error
+            throw { msg: "applied" }
         }
         await Request.create(request)
     } catch (error) {
@@ -216,13 +213,9 @@ async function newRequest(user, type) {
 async function extractRequests(roleId) {
     const attributes = ['id', 'status', 'userEmail', 'requestType']
     try {
-        if (roleId == 3) {
-            const requests = await Request.findAll({
-                attributes
-            })
-            return requests
-        } else {
-            const requests = await Request.findAll({
+        const requests = (roleId == 3) ?
+            await Request.findAll({ attributes })
+            : await Request.findAll({
                 where: {
                     requestType: {
                         [Op.not]: "manager registration"
@@ -230,8 +223,7 @@ async function extractRequests(roleId) {
                 },
                 attributes
             })
-            return requests
-        }
+        return requests
     } catch (error) {
         throw error
     }
