@@ -24,26 +24,7 @@ router.get('/auth/google/callback', function (req, res, next) {
         })
     })(req, res, next)
 })
-//--------------
 
-// router.get('/auth/facebook', passport.authenticate('facebook'))
-
-// router.get('/auth/facebook/callback', function (req, res, next) {
-//     passport.authenticate('facebook', (err, user, info) => {
-//         console.log(user)
-//         // const accessToken = token.sign({ user })
-//         // const data = { user }
-//         // res.header('token', accessToken)
-//         // res.render('profile', {
-//         //     email: data.user.email,
-//         //     name: data.user.name,
-//         //     RoleId: 1,
-//         //     picture: data.user.picture
-//         // })
-//     })(req, res, next)
-// })
-
-//-------------------
 router.post('/signup', multer.single('picture'), authController.createUser)
 
 router.post('/login', authController.loginUser)
