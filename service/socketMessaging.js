@@ -31,7 +31,7 @@ async function notifyAdminManager(type) {
 }
 
 server.listen(3001, () => {
-    console.log('Listening')
+    console.log('Sockets listening')
 })
 
 module.exports = { sendNotification, notificationForAdmin, findAndNotify, notifyAdminManager }
