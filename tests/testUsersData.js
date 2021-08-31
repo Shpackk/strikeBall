@@ -3,7 +3,7 @@ const testManager = {
     email: 'onemore@gmail.com',
     name: 'onemore',
     RoleId: 2,
-    password: '123456',
+    password: 'kjhgkjhg',
     picture: null
 }
 
@@ -11,7 +11,7 @@ const testUser = {
     email: 'bannedusertest@gmail.com',
     name: 'bannedusertest',
     RoleId: 1,
-    password: '123456',
+    password: '123456h',
     picture: null
 }
 
@@ -19,7 +19,7 @@ const testUserTwo = {
     name: "testfromjest",
     email: "testfromjest@google.com",
     role: "user",
-    password: '123456',
+    password: '876kjghf',
     picture: null
 }
 

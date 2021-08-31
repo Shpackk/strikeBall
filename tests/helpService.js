@@ -1,8 +1,8 @@
-const app = require('../app')
-const supertest = require('supertest')
 const db = require('../models/index')
-const { User } = require('../models/index')
+const app = require('../app')
 const data = require('../tests/testUsersData')
+const { User } = require('../models/index')
+const supertest = require('supertest')
 const passControl = require('../DTO/userDTO/passwordControll')
 
 beforeAll(async () => {
@@ -248,12 +248,15 @@ async function loginUser(name, password) {
 
 //7777777777777777777777777
 async function createTestUsers() {
-    data.testUserTwo.password = await passControl.hash(data.testUserTwo.password)
-    data.testUser.password = await passControl.hash(data.testUser.password)
-    data.testManager.password = await passControl.hash(data.testManager.password)
-    await User.create(data.testManager)
-    await User.create(data.testUserTwo)
-    return await User.create(data.testUser)
+    const newManager = Object.assign({}, data.testManager)
+    const newUserr = Object.assign({}, data.testUserTwo)
+    const newUser = Object.assign({}, data.testUser);
+    newManager.password = await passControl.hash(newManager.password)
+    newUserr.password = await passControl.hash(newUserr.password)
+    newUser.password = await passControl.hash(newUser.password)
+    await User.create(newManager)
+    await User.create(newUserr)
+    return await User.create(newUser)
 }
 
 function closeConnection() {

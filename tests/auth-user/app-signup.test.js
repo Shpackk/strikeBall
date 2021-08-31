@@ -82,9 +82,6 @@ describe('Post on /signup', () => {
     ///;kjfhglskjdfhglskjfhglskjfdhglskfjdhgslkdfjh
     test("Should return users credentials when logging in", async () => {
         const response = await service.loginUser(data.testManager.name, data.testManager.password)
-        expect(response.statusCode).toBe(201)
-        expect(response.headers['content-type']).toEqual(expect.stringContaining('json'))
-        expect(response.body).toBeDefined()
         expect(response.body).toEqual(
             expect.objectContaining({
                 id: expect.any(Number),
@@ -93,6 +90,10 @@ describe('Post on /signup', () => {
                 token: expect.any(String)
             })
         )
+        expect(response.statusCode).toBe(201)
+        expect(response.headers['content-type']).toEqual(expect.stringContaining('json'))
+        expect(response.body).toBeDefined()
+
     })
 
     test("Should inform that user is banned from service", async () => {
