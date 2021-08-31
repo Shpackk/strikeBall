@@ -8,9 +8,8 @@ async function requireAdmin(req, res, next) {
                 id: req.user.roleId
             }
         })
-
         if (result.dataValues.role != 'admin') {
-            res.json({ "message": "No permission" })
+            return res.status(403).json({ message: "No permission" })
         }
         else {
             next()
@@ -28,12 +27,10 @@ async function requireManagerAdmin(req, res, next) {
                 id: req.user.roleId
             }
         })
-        if ((result.dataValues.role == 'admin') || (result.dataValues.role == 'manager')) {
-            next()
+        if (result.dataValues.role == 'user') {
+            return res.status(403).json({ message: "No permission" })
         }
-        else {
-            res.status(403).json({ "message": "No permission" })
-        }
+        next()
     } catch (error) {
         next(error)
     }
@@ -41,10 +38,7 @@ async function requireManagerAdmin(req, res, next) {
 
 function validToken(tokenUserId) {
     if (!tokenUserId) {
-        const error = {
-            "msg": "Bad token"
-        }
-        throw error
+        throw { msg: "Bad token" }
     }
     return
 }
