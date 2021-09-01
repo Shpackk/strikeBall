@@ -6,6 +6,7 @@ const userRoutes = require('./routes/UserRoutes')
 const teamRoutes = require('./routes/TeamRoutes')
 const authRoutes = require('./routes/authRoutes')
 const errorHandler = require('./middleware/errorHandler')
+const nonExistingRoute = require('./middleware/nonExistingRoute')
 const path = require('path')
 require('dotenv').config()
 const PORT = process.env.PORT || 3000
@@ -20,9 +21,7 @@ app.use(userRoutes)
 app.use(teamRoutes)
 app.use(authRoutes)
 app.use(errorHandler)
-app.get('*', function (req, res) {
-    res.status(404).json({ "message": "Page Not Found" })
-});
+app.use(nonExistingRoute)
 
 db.sequelize.sync()
     .then(() => console.log('PostgreSQL is synced!'))
