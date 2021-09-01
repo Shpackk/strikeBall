@@ -17,8 +17,12 @@ module.exports = {
         allowNull: false
       },
       requestType: {
-        type: Sequelize.STRING,
+        type: Sequelize.ENUM,
         allowNull: false
+      },
+      teamId: {
+        type: Sequelize.INTEGER,
+        allowNull: true
       },
       approved: {
         type: Sequelize.BOOLEAN,
