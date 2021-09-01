@@ -10,7 +10,6 @@ passport.use(new GoogleStrategy({
     callbackURL: "http://localhost:3000/auth/google/callback"
 
 }, async (accessToken, refreshToken, profile, done) => {
-
     const user = {
         googleId: profile._json.sub,
         name: profile._json.given_name,
@@ -26,8 +25,7 @@ passport.use(new GoogleStrategy({
         }
 
     } catch (error) {
-        console.log(error)
+        done(error, null)
     }
-
 }
 ));
