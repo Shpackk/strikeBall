@@ -34,14 +34,14 @@ function generateMessage(topic, description) {
     if (topic == "unban") {
         return `Dear player! Your account has been unbanned due to ${description}`
     }
-    if (topic.includes('leave')) {
+    if (topic == 'leave') {
         if (description == true) {
             return `Dear player! You sucessfully left your team`
         } else {
             return `Dear player! Sorry but we declined your request to leave`
         }
     }
-    if (topic.includes('join')) {
+    if (topic == 'join') {
         if (description == true) {
             return `Dear player, You joined a new team! Good Luck and Have Fun!`
         }
@@ -55,7 +55,7 @@ function generateMessage(topic, description) {
     if (topic == "Password Reset") {
         return `Follow this link to reset your password - ${description}`
     }
-    if (topic == "manager registration") {
+    if (topic == "register") {
         const msg = description ? "Your registration was approved" : "Your registration was declined"
         return msg
     }
