@@ -371,15 +371,6 @@
 						}
 					},
 					"response": []
-				},
-				{
-					"name": "upload TEST",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": null
-					},
-					"response": []
 				}
 			]
 		},
@@ -431,13 +422,13 @@
 						"header": [
 							{
 								"key": "token",
-								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwibmFtZSI6Im1lbGlmaWtvIiwicm9sZSI6InVzZXIiLCJpYXQiOjE2Mjg1MTI1Njd9.dhBhayAuWfkq1hG9Ii3U9M-x8OL-IkRRC9bLr5UxZko",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywibmFtZSI6ImFkbWluIiwicm9sZUlkIjozLCJpYXQiOjE2Mjk2NzgyMTF9.94oitAUmfxU9xfRBNI8ZtrrFsCfCWh819thxMSDQ03w",
 								"type": "text"
 							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"userId\":\"2\",\r\n    \"kickReason\":\"innactivity\"\r\n}",
+							"raw": "{\r\n    \"userId\":42,\r\n    \"kickReason\":\"innactivity\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -486,6 +477,15 @@
 								}
 							]
 						}
+					},
+					"response": []
+				},
+				{
+					"name": "view one manager",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": null
 					},
 					"response": []
 				},
@@ -633,7 +633,7 @@
 						"header": [
 							{
 								"key": "token",
-								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwibmFtZSI6ImFub3RoZXJib3kiLCJyb2xlIjoidXNlciIsImlhdCI6MTYyODE4ODgxOH0.Hf-W2uUb5rc925j9Aj2B2bl4gmfFAN_eguiZ_zDcSXk",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywibmFtZSI6ImFkbWluIiwicm9sZUlkIjozLCJpYXQiOjE2MjkxOTczNDl9.nAMPtbEsxkrPBneuzqP4OpRfpk3O3QslnxrxT7owoQ8",
 								"type": "text"
 							}
 						],
@@ -720,10 +720,6 @@
 					"response": []
 				}
 			]
-		},
-		{
-			"name": "User/Manager/Admin routes",
-			"item": []
 		}
 	]
 }
