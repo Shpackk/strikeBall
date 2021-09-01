@@ -19,7 +19,8 @@ module.exports = (sequelize, DataTypes) => {
     userEmail: DataTypes.STRING,
     userName: DataTypes.STRING,
     userPass: DataTypes.STRING,
-    requestType: DataTypes.STRING,
+    requestType: DataTypes.ENUM('join', 'leave', 'register'),
+    teamId: DataTypes.INTEGER,
     approved: DataTypes.BOOLEAN
   }, {
     sequelize,
