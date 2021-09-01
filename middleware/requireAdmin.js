@@ -1,8 +1,15 @@
 const { Role } = require('../models/index')
 
+function isTokenValid(tokenUserId) {
+    if (!tokenUserId) {
+        throw { msg: "Bad token" }
+    }
+    return
+}
+
 async function requireAdmin(req, res, next) {
     try {
-        validToken(req.user.roleId)
+        isTokenValid(req.user.roleId)
         const result = await Role.findOne({
             where: {
                 id: req.user.roleId
@@ -21,7 +28,7 @@ async function requireAdmin(req, res, next) {
 
 async function requireManagerAdmin(req, res, next) {
     try {
-        validToken(req.user.roleId)
+        isTokenValid(req.user.roleId)
         const result = await Role.findOne({
             where: {
                 id: req.user.roleId
@@ -35,14 +42,6 @@ async function requireManagerAdmin(req, res, next) {
         next(error)
     }
 }
-
-function validToken(tokenUserId) {
-    if (!tokenUserId) {
-        throw { msg: "Bad token" }
-    }
-    return
-}
-
 module.exports = {
     requireAdmin,
     requireManagerAdmin
