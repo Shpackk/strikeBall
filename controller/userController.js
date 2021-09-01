@@ -2,10 +2,10 @@ const dbRequest = require('../DTO/userDTO/userDBrequests')
 const dbTeamRequest = require('../DTO/teamDTO/teamDBrequests')
 const banDbRequest = require('../DTO/banDTO/banRequests')
 const check = require('../middleware/inputVerify')
-const token = require('../DTO/userDTO/userTokenControll')
 const mailer = require('../service/mailMessageHandler')
 const socket = require('../service/socketMessaging')
-const passControl = require('../DTO/userDTO/passwordControll')
+const passControl = require('../service/passwordService')
+const token = require('../service/tokenService')
 const mongoLog = require('../service/mongoLogsSaver.js')
 
 // to view all users
@@ -156,7 +156,6 @@ async function populateRequest(req, res, next) {
     const approved = req.body.approved
     try {
         const request = await dbRequest.findRequest(requestId)
-        console.log(request.dataValues.requestType)
         if (!request) throw { status: 404 }
         if ((request.dataValues.requestType == 'register') && (approved)) {
             await dbRequest.acceptRequest(requestId, request.dataValues.userName, request.dataValues.userPass, request.dataValues.userEmail)
