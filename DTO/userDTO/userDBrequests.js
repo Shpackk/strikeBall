@@ -219,7 +219,7 @@ async function extractRequests(roleId) {
             : await Request.findAll({
                 where: {
                     requestType: {
-                        [Op.not]: "registration"
+                        [Op.not]: "register"
                     }
                 },
                 attributes
