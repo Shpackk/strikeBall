@@ -186,15 +186,16 @@ async function updatePassword(id, password) {
 }
 
 // create request
-async function newRequest(user, type) {
+async function newRequest(user, type, teamId) {
     let request = {
         status: 'active',
         userEmail: user.email,
         userName: user.name,
         requestType: type,
-        UserId: user.id
+        UserId: user.id,
+        teamId
     }
-    request.userPass = (type == 'manager registration') ? user.password : null
+    request.userPass = (type == 'register') ? user.password : null
     try {
         const found = await Request.findOne({
             where: {
@@ -211,14 +212,14 @@ async function newRequest(user, type) {
 }
 
 async function extractRequests(roleId) {
-    const attributes = ['id', 'status', 'userEmail', 'requestType']
+    const attributes = ['id', 'status', 'userEmail', 'requestType', 'teamId']
     try {
         const requests = (roleId == 3) ?
             await Request.findAll({ attributes })
             : await Request.findAll({
                 where: {
                     requestType: {
-                        [Op.not]: "manager registration"
+                        [Op.not]: "registration"
                     }
                 },
                 attributes
@@ -235,7 +236,7 @@ async function findRequest(reqId) {
             where: {
                 id: reqId
             },
-            attributes: ['userEmail', 'userName', 'userPass', 'requestType']
+            attributes: ['userEmail', 'userName', 'userPass', 'requestType', 'teamId']
         })
     } catch (error) {
         throw error
@@ -263,8 +264,7 @@ async function clearRequest(reqId) {
     }
 }
 
-async function updateTeamStatus(requestId, userEmail, requestType) {
-    const teamId = requestType.match(/\d+/)[0]
+async function updateTeamStatus(requestId, userEmail, requestType, teamId) {
     try {
         await clearRequest(requestId)
         const user = await User.update({ TeamId: teamId }, {
@@ -273,7 +273,7 @@ async function updateTeamStatus(requestId, userEmail, requestType) {
             },
             returning: true
         })
-        if (requestType.includes('join')) {
+        if (requestType == 'join') {
             await checkInAnotherTeam(teamId, user[1][0].dataValues.id)// 1
             return await teamDbRequest.addToTeam(user[1][0].dataValues.id, teamId)// 2
         } else {
