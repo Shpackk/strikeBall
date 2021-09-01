@@ -28,7 +28,7 @@ async function joinTeam(req, res, next) {
         }
         const user = await dbUserRequest.findOneById(userId)
         if (user) {
-            await dbUserRequest.newRequest(user.dataValues, `join team ${teamId}`)
+            await dbUserRequest.newRequest(user.dataValues, 'join', teamId)
             socket.notifyAdminManager('jointeam')
             res.status(200).json({ message: "Sucessfully applied!" })
         }
@@ -45,7 +45,7 @@ async function leaveTeam(req, res, next) {
         if (checkInTeam) {
             const user = await dbUserRequest.findOneById(userId)
             if (user) {
-                await dbUserRequest.newRequest(user.dataValues, `leave team ${teamId}`)
+                await dbUserRequest.newRequest(user.dataValues, 'leave', teamId)
                 socket.notifyAdminManager('teamleave')
                 res.status(200).json({ message: "Sucessfully applied!" })
             }

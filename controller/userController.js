@@ -156,12 +156,13 @@ async function populateRequest(req, res, next) {
     const approved = req.body.approved
     try {
         const request = await dbRequest.findRequest(requestId)
+        console.log(request.dataValues.requestType)
         if (!request) throw { status: 404 }
-        if ((request.dataValues.requestType == 'manager registration') && (approved)) {
+        if ((request.dataValues.requestType == 'register') && (approved)) {
             await dbRequest.acceptRequest(requestId, request.dataValues.userName, request.dataValues.userPass, request.dataValues.userEmail)
         }
-        else if ((request.dataValues.requestType.includes('team')) && (approved)) {
-            await dbRequest.updateTeamStatus(requestId, request.dataValues.userEmail, request.dataValues.requestType)
+        else if (approved) {
+            await dbRequest.updateTeamStatus(requestId, request.dataValues.userEmail, request.dataValues.requestType, request.dataValues.teamId)
             await socket.findAndNotify(request.dataValues.userEmail, request.dataValues.requestType)
             await socket.notificationForAdmin(`${request.dataValues.userEmail} ${request.dataValues.requestType} sucessfull`)
         }

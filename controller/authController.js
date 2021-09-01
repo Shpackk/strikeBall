@@ -35,7 +35,7 @@ module.exports.createUser = async (req, res, next) => {
             }
             if (user.role == 'manager') {
                 user.password = await passControl.hash(user.password, 10)
-                await dbRequest.newRequest(user, 'manager registration')
+                await dbRequest.newRequest(user, 'register')
                 await socket.notificationForAdmin('New Manager Registration')
                 res.status(201).json({
                     message: 'You sucessfully applied!'
