@@ -214,17 +214,10 @@ async function newRequest(user, type, teamId) {
 async function extractRequests(roleId) {
     const attributes = ['id', 'status', 'userEmail', 'requestType', 'teamId']
     try {
-        const requests = (roleId == 3) ?
-            await Request.findAll({ attributes })
-            : await Request.findAll({
-                where: {
-                    requestType: {
-                        [Op.not]: "register"
-                    }
-                },
-                attributes
-            })
-        return requests
+        const requestConf = (roleId == 3) ?
+            { attributes }
+            : { where: { requestType: { [Op.not]: "register" }, attributes } }
+        return await Request.findAll(requestConf)
     } catch (error) {
         throw error
     }
@@ -267,17 +260,19 @@ async function clearRequest(reqId) {
 async function updateTeamStatus(requestId, userEmail, requestType, teamId) {
     try {
         await clearRequest(requestId)
-        const user = await User.update({ TeamId: teamId }, {
+        const user = await User.findOne({
             where: {
                 email: userEmail
-            },
-            returning: true
+            }
         })
         if (requestType == 'join') {
-            await checkInAnotherTeam(teamId, user[1][0].dataValues.id)// 1
-            return await teamDbRequest.addToTeam(user[1][0].dataValues.id, teamId)// 2
+            await checkInAnotherTeam(teamId, user.dataValues.id)
+            const result = await teamDbRequest.addToTeam(user.dataValues.id, teamId)
+            user.TeamId = teamId
+            user.save()
+            return result
         } else {
-            return await teamDbRequest.deleteFromTeam(user[1][0].dataValues.id, teamId)
+            return await teamDbRequest.deleteFromTeam(user.dataValues.id, teamId)
         }
     } catch (error) {
         throw error
@@ -299,23 +294,14 @@ async function extractUserRequest(userId) {
 }
 
 async function checkInAnotherTeam(teamId, userId) {
+    const teamToCheck = teamId == 1 ? 2 : 1
     try {
-        if (teamId == 1) {
-            const isInTeam = await teamDbRequest.checkUserInTeam(userId, 2)
-            if (isInTeam) {
-                await teamDbRequest.deleteFromTeam(userId, 2)
-                return
-            }
+        const isInTeam = await teamDbRequest.checkUserInTeam(userId, teamToCheck)
+        if (isInTeam) {
+            await teamDbRequest.deleteFromTeam(userId, teamToCheck)
             return
         }
-        if (teamId == 2) {
-            const isInTeam = await teamDbRequest.checkUserInTeam(userId, 1)
-            if (isInTeam) {
-                await teamDbRequest.deleteFromTeam(userId, 1)
-                return
-            }
-            return
-        }
+        return
     } catch (error) {
         throw error
     }
