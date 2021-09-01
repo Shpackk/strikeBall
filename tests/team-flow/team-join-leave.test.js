@@ -1,10 +1,25 @@
 // no saved data after test
+const app = require('../../app')
+const data = require('../testUsersData')
 const service = require('../helpService')
+const supertest = require('supertest')
 
+beforeAll(async () => {
+    const admin = await supertest(app)
+        .post('/login')
+        .send(data.adminCreds)
+    const user = await supertest(app)
+        .post('/signup')
+        .send(data.AnotherUser)
+    return token = [
+        { token: admin.body.token },
+        { token: user.body.token },
+    ]
+})
 describe('End to end user join and leave team flow', () => {
     test('should sucessfully apply to team, and return created request', async () => {
         //1.apply to join team
-        const ApplyToTeam = await service.applyToJoinTeam()
+        const ApplyToTeam = await service.applyToJoinTeam(token[1].token)
         expect(ApplyToTeam.statusCode).toEqual(200)
         expect(ApplyToTeam.headers['content-type']).toEqual(expect.stringContaining('json'))
         expect(ApplyToTeam.body).toBeDefined()
@@ -15,7 +30,7 @@ describe('End to end user join and leave team flow', () => {
         )
 
         //2.view request as user 
-        const userRequest = await service.viewMyRequests()
+        const userRequest = await service.viewMyRequests(token[1])
         expect(userRequest.statusCode).toBe(200)
         expect(userRequest.body).toBeDefined()
         expect(userRequest.body).toHaveLength(1)
@@ -24,14 +39,14 @@ describe('End to end user join and leave team flow', () => {
                 expect.objectContaining({
                     id: expect.any(Number),
                     status: expect.stringMatching('active'),
-                    requestType: expect.stringMatching('join team 1')
+                    requestType: expect.stringMatching('join')
                 })
             ])
         )
     })
     test('admin should see new request, and sucessfully accept it', async () => {
         //3.extract request as admin
-        const checkJoinAsAdmin = await service.extractRequest()
+        const checkJoinAsAdmin = await service.extractRequest(token[0])
         expect(checkJoinAsAdmin.statusCode).toBe(200)
         expect(checkJoinAsAdmin.body).toBeDefined()
         expect(checkJoinAsAdmin.body).toHaveLength(1)
@@ -41,12 +56,12 @@ describe('End to end user join and leave team flow', () => {
                     id: expect.any(Number),
                     status: expect.stringMatching('active'),
                     userEmail: expect.any(String),
-                    requestType: expect.stringMatching('join team 1')
+                    requestType: expect.stringMatching('join')
                 })
             ])
         )
         // 4.accept team join as admin
-        const acceptedJoin = await service.acceptRequest(checkJoinAsAdmin.body[0].id)
+        const acceptedJoin = await service.acceptRequest(checkJoinAsAdmin.body[0].id, token[0])
         expect(acceptedJoin.statusCode).toEqual(200)
         expect(acceptedJoin.body).toBeDefined()
         expect(acceptedJoin.body).toEqual(
@@ -57,7 +72,7 @@ describe('End to end user join and leave team flow', () => {
     })
     test('user should now see in profile data about his team', async () => {
         //5. view profile as user to confirm team join
-        const profileWithTeam = await service.checkProfile()
+        const profileWithTeam = await service.checkProfile(token[1])
         expect(profileWithTeam.statusCode).toBe(200)
         expect(profileWithTeam.body).toBeDefined()
         expect(profileWithTeam.body).toMatchObject({ Team: { id: 1, name: "A" } })
@@ -65,7 +80,7 @@ describe('End to end user join and leave team flow', () => {
 
     test('user should be able to create request and see it in user-requests page', async () => {
         // //6. request to leave team
-        const teamLeave = await service.applyToLeaveTeam()
+        const teamLeave = await service.applyToLeaveTeam(token[1])
         expect(teamLeave.statusCode).toBe(200)
         expect(teamLeave.body).toBeDefined()
         expect(teamLeave.body).toEqual(
@@ -75,7 +90,7 @@ describe('End to end user join and leave team flow', () => {
         )
 
         //7. view pending request as user
-        const newUserReq = await service.viewMyRequests()
+        const newUserReq = await service.viewMyRequests(token[1])
         expect(newUserReq.statusCode).toBe(200)
         expect(newUserReq.body).toBeDefined()
         expect(newUserReq.body).toHaveLength(1)
@@ -84,14 +99,14 @@ describe('End to end user join and leave team flow', () => {
                 expect.objectContaining({
                     id: expect.any(Number),
                     status: expect.stringMatching('active'),
-                    requestType: expect.stringMatching('leave team 1')
+                    requestType: expect.stringMatching('leave')
                 })
             ])
         )
     })
     test('admin should extract users request and accept it', async () => {
         //8. extract requests as admin
-        const checkLeaveAsAdmin = await service.extractRequest()
+        const checkLeaveAsAdmin = await service.extractRequest(token[0])
         expect(checkLeaveAsAdmin.statusCode).toBe(200)
         expect(checkLeaveAsAdmin.body).toBeDefined()
         expect(checkLeaveAsAdmin.body).toHaveLength(1)
@@ -101,13 +116,13 @@ describe('End to end user join and leave team flow', () => {
                     id: expect.any(Number),
                     status: expect.stringMatching('active'),
                     userEmail: expect.any(String),
-                    requestType: expect.stringMatching('leave team 1')
+                    requestType: expect.stringMatching('leave')
                 })
             ])
         )
 
         //9. accept request as admin
-        const acceptLeave = await service.acceptRequest(checkLeaveAsAdmin.body[0].id)
+        const acceptLeave = await service.acceptRequest(checkLeaveAsAdmin.body[0].id, token[0])
         expect(acceptLeave.statusCode).toEqual(200)
         expect(acceptLeave.body).toBeDefined()
         expect(acceptLeave.body).toEqual(
@@ -119,7 +134,7 @@ describe('End to end user join and leave team flow', () => {
 
     test('user should see that he is not in a team anymore', async () => {
         //10. check profile to confirm team leave
-        const profileWithoutTeam = await service.checkProfile()
+        const profileWithoutTeam = await service.checkProfile(token[1])
         expect(profileWithoutTeam.statusCode).toBe(200)
         expect(profileWithoutTeam.body).toBeDefined()
         expect(profileWithoutTeam.body).toMatchObject({ Team: null })

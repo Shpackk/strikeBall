@@ -1,11 +1,26 @@
 // no saved data after test
+const app = require('../../app')
+const data = require('../testUsersData')
 const service = require('../helpService')
+const supertest = require('supertest')
 
+beforeAll(async () => {
+    const admin = await supertest(app)
+        .post('/login')
+        .send(data.adminCreds)
+    const user = await supertest(app)
+        .post('/signup')
+        .send(data.AnotherUser)
+    return token = [
+        { token: admin.body.token },
+        { token: user.body.token },
+    ]
+})
 
 describe("Get on /team/id/players, delete on /team/id/kick", () => {
 
     test('should extract users in team and kick user', async () => {
-        const ApplyToTeam = await service.applyToJoinTeam()
+        const ApplyToTeam = await service.applyToJoinTeam(token[1].token)
         expect(ApplyToTeam.statusCode).toEqual(200)
         expect(ApplyToTeam.headers['content-type']).toEqual(expect.stringContaining('json'))
         expect(ApplyToTeam.body).toBeDefined()
@@ -15,7 +30,7 @@ describe("Get on /team/id/players, delete on /team/id/kick", () => {
             })
         )
 
-        const checkJoinAsAdmin = await service.extractRequest()
+        const checkJoinAsAdmin = await service.extractRequest(token[0])
         expect(checkJoinAsAdmin.statusCode).toBe(200)
         expect(checkJoinAsAdmin.body).toBeDefined()
         expect(checkJoinAsAdmin.body).toHaveLength(1)
@@ -25,11 +40,11 @@ describe("Get on /team/id/players, delete on /team/id/kick", () => {
                     id: expect.any(Number),
                     status: expect.stringMatching('active'),
                     userEmail: expect.any(String),
-                    requestType: expect.stringMatching('join team 1')
+                    requestType: expect.stringMatching('join')
                 })
             ])
         )
-        const acceptedJoin = await service.acceptRequest(checkJoinAsAdmin.body[0].id)
+        const acceptedJoin = await service.acceptRequest(checkJoinAsAdmin.body[0].id, token[0])
         expect(acceptedJoin.statusCode).toEqual(200)
         expect(acceptedJoin.body).toBeDefined()
         expect(acceptedJoin.body).toEqual(
@@ -38,12 +53,12 @@ describe("Get on /team/id/players, delete on /team/id/kick", () => {
             })
         )
 
-        const players = await service.playersByTeam()
+        const players = await service.playersByTeam(token[0])
         expect(players.statusCode).toBe(200)
         expect(players.body).toBeDefined()
         expect(players.body).toBeInstanceOf(Array)
 
-        const kickResponse = await service.kickUserFromTeam(players.body[0].id)
+        const kickResponse = await service.kickUserFromTeam(players.body[0].id, token[0])
         expect(kickResponse.statusCode).toBe(200)
         expect(kickResponse.body).toBeDefined()
         expect(kickResponse.body).toEqual(

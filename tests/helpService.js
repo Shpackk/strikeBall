@@ -3,21 +3,7 @@ const app = require('../app')
 const data = require('../tests/testUsersData')
 const { User } = require('../models/index')
 const supertest = require('supertest')
-const passControl = require('../DTO/userDTO/passwordControll')
-
-beforeAll(async () => {
-    const admin = await supertest(app)
-        .post('/login')
-        .send(data.adminCreds)
-    const user = await supertest(app)
-        .post('/signup')
-        .send(data.AnotherUser)
-    return token = [
-        { token: admin.body.token },
-        { token: user.body.token },
-    ]
-})
-
+const passControl = require('../service/passwordService')
 
 function generateCreds() {
     const length = 10,
@@ -30,18 +16,18 @@ function generateCreds() {
 }
 
 //1111111111
-async function getAllUsers() {
+async function getAllUsers(token) {
     const users = await supertest(app)
         .get('/users')
-        .set(token[0])
+        .set(token)
     return users
 }
 
 
-async function banUser(id) {
+async function banUser(id, token) {
     const bannedUser = await supertest(app)
         .post(`/user/${id}/ban`)
-        .set(token[0])
+        .set(token)
         .send({
             description: 'badhuman',
             type: 'ban'
@@ -49,18 +35,18 @@ async function banUser(id) {
     return bannedUser
 }
 
-async function viewBannedUser(id) {
+async function viewBannedUser(id, token) {
     const bannedUser = await supertest(app)
         .get(`/user/${id}`)
-        .set(token[0])
+        .set(token)
     return bannedUser
 }
 
 
-async function unBanUser(id) {
+async function unBanUser(id, token) {
     const unbannedUser = await supertest(app)
         .post(`/user/${id}/ban`)
-        .set(token[0])
+        .set(token)
         .send({
             description: 'missclick',
             type: 'unban'
@@ -68,31 +54,31 @@ async function unBanUser(id) {
     return unbannedUser
 }
 // 222222222222
-async function createRequest() {
+async function createRequest(token) {
     const response = await supertest(app)
         .patch('/team/1/join')
-        .set(token[1])
+        .set(token)
     return response
 }
 
-async function viewMyRequests() {
+async function viewMyRequests(token) {
     const response = await supertest(app)
         .get('/user/requests')
-        .set(token[1])
+        .set(token)
     return response
 }
 
-async function deleteRequest(id) {
+async function deleteRequest(id, token) {
     const response = await supertest(app)
         .delete(`/user/requests/delete/${id}`)
-        .set(token[1])
+        .set(token)
     return response
 }
 //33333333333
-async function getManagers() {
+async function getManagers(token) {
     const response = await supertest(app)
         .get('/managers')
-        .set(token[0])
+        .set(token)
     return response
 }
 
@@ -108,26 +94,26 @@ async function regManager(creds) {
     return response
 }
 
-async function extractRequest() {
+async function extractRequest(token) {
     const response = await supertest(app)
         .get('/requests')
-        .set(token[0])
+        .set(token)
     return response
 }
 
-async function acceptRequest(id) {
+async function acceptRequest(id, token) {
     const response = await supertest(app)
         .patch(`/requests/${id}`)
-        .set(token[0])
+        .set(token)
         .send({
             approved: true
         })
     return response
 }
-async function declineRequest(id) {
+async function declineRequest(id, token) {
     const response = await supertest(app)
         .patch(`/requests/${id}`)
-        .set(token[0])
+        .set(token)
         .send({
             approved: false
         })
@@ -135,6 +121,7 @@ async function declineRequest(id) {
 }
 // 444444444
 async function updateInfo(creds, token) {
+    //token passed fron outside not from logging in beforeAll
     const response = await supertest(app)
         .patch('/user/update')
         .set({ token })
@@ -145,10 +132,10 @@ async function updateInfo(creds, token) {
         })
     return response
 }
-async function getUser(id) {
+async function getUser(id, token) {
     const response = await supertest(app)
         .get(`/user/${id}`)
-        .set(token[0])
+        .set(token)
     return response
 }
 //55555555555
@@ -163,24 +150,25 @@ async function registerUser(credentials = generateCreds()) {
         })
     return response
 }
-async function applyToJoinTeam(tok = token[1].token) {
+async function applyToJoinTeam(tok) {
+    //token passed fron outside not from logging in beforeAll
     const response = await supertest(app)
         .patch('/team/1/join')
         .set({ 'token': tok })
     return response
 }
 
-async function nonExistingTeam() {
+async function nonExistingTeam(token) {
     const response = await supertest(app)
         .patch('/team/424345/join')
-        .set(token[1])
+        .set(token)
     return response
 }
 
-async function nonExistingRequest() {
+async function nonExistingRequest(token) {
     const response = await supertest(app)
         .patch(`/requests/876876876`)
-        .set(token[0])
+        .set(token)
         .send({
             approved: false
         })
@@ -196,30 +184,30 @@ async function acceptTeamJoin(request) {
         })
     return response
 }
-async function checkProfile(tok = token[1]) {
+async function checkProfile(token) {
     const response = await supertest(app)
         .get('/user/profile')
-        .set(tok)
+        .set(token)
     return response
 }
 
-async function applyToLeaveTeam() {
+async function applyToLeaveTeam(token) {
     const response = await supertest(app)
         .delete('/team/1/leave')
-        .set(token[1])
+        .set(token)
     return response
 }
-async function playersByTeam() {
+async function playersByTeam(token) {
     const users = await supertest(app)
         .get('/team/1/players')
-        .set(token[0])
+        .set(token)
     return users
 }
 
-async function kickUserFromTeam(id) {
+async function kickUserFromTeam(id, token) {
     const kick = await supertest(app)
         .delete('/team/1/kick')
-        .set(token[0])
+        .set(token)
         .send({
             userId: id,
             kickReason: 'innactivity'
@@ -254,6 +242,9 @@ async function createTestUsers() {
     newManager.password = await passControl.hash(newManager.password)
     newUserr.password = await passControl.hash(newUserr.password)
     newUser.password = await passControl.hash(newUser.password)
+    // const newManager = { ...data.testManager, password: await passControl.hash(newManager.password) };
+    // const newUserr = { ...data.testUserTwo, password: await passControl.hash(newUserr.password) };
+    // const newUser = { ...data.testUser, password: await passControl.hash(newUser.password) };
     await User.create(newManager)
     await User.create(newUserr)
     return await User.create(newUser)

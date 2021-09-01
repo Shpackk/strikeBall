@@ -1,4 +1,16 @@
+const app = require('../../app')
+const data = require('../testUsersData')
 const service = require('../helpService')
+const supertest = require('supertest')
+
+beforeAll(async () => {
+    const admin = await supertest(app)
+        .post('/login')
+        .send(data.adminCreds)
+    return token = [
+        { token: admin.body.token },
+    ]
+})
 
 describe('patch on /user/update', () => {
     const creds = service.generateCreds()
@@ -13,7 +25,7 @@ describe('patch on /user/update', () => {
             })
         )
 
-        const viewUser = await service.getUser(newUser.body.id)
+        const viewUser = await service.getUser(newUser.body.id, token[0])
         expect(viewUser.body).toEqual(
             expect.objectContaining({
                 id: expect.any(Number),
