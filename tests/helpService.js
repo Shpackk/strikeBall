@@ -236,15 +236,9 @@ async function loginUser(name, password) {
 
 //7777777777777777777777777
 async function createTestUsers() {
-    const newManager = Object.assign({}, data.testManager)
-    const newUserr = Object.assign({}, data.testUserTwo)
-    const newUser = Object.assign({}, data.testUser);
-    newManager.password = await passControl.hash(newManager.password)
-    newUserr.password = await passControl.hash(newUserr.password)
-    newUser.password = await passControl.hash(newUser.password)
-    // const newManager = { ...data.testManager, password: await passControl.hash(newManager.password) };
-    // const newUserr = { ...data.testUserTwo, password: await passControl.hash(newUserr.password) };
-    // const newUser = { ...data.testUser, password: await passControl.hash(newUser.password) };
+    const newManager = { ...data.testManager, password: await passControl.hash(data.testManager.password) };
+    const newUserr = { ...data.testUserTwo, password: await passControl.hash(data.testUserTwo.password) };
+    const newUser = { ...data.testUser, password: await passControl.hash(data.testUser.password) };
     await User.create(newManager)
     await User.create(newUserr)
     return await User.create(newUser)
