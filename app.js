@@ -1,5 +1,10 @@
 const express = require('express')
 const app = express()
+//-------------
+const server = require('http').createServer(app)
+const io = require('socket.io')(server)
+module.exports = io
+//-------------
 const passport = require('passport')
 const db = require('./models/index')
 const userRoutes = require('./routes/UserRoutes')
@@ -28,8 +33,9 @@ db.sequelize.sync()
     .catch(err => console.log(err))
 
 if (process.env.NODE_ENV !== 'test') {
-    app.listen(PORT);
+    server.listen(PORT);
 }
+module.exports = server
 
-module.exports = app
+
 
