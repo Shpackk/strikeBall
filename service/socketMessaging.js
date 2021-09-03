@@ -1,11 +1,8 @@
-const app = require('../app')
-const server = require('http').createServer(app)
-const io = require('socket.io')(server, { cors: { origin: '*' } });
+const io = require('../app')
 const dbReq = require('../DTO/userDTO/userDBrequests')
 
 io.on('connection', (socket) => {
     console.log('socket connected ', socket.id)
-
 })
 
 function sendNotification(userId, msg) {
@@ -30,8 +27,8 @@ async function notifyAdminManager(type) {
     });
 }
 
-server.listen(3001, () => {
-    console.log('Sockets listening')
-})
+// server.listen(3001, () => {
+//     console.log('Sockets listening')
+// })
 
 module.exports = { sendNotification, notificationForAdmin, findAndNotify, notifyAdminManager }
