@@ -1,0 +1,35 @@
+version: "3.9"
+
+services:
+  app:
+    container_name: node_app
+    build: .
+    ports:
+      - "5000:5000"
+    env_file: ".env"
+    environment:
+      - JWT_SECRET=${JWT_SECRET}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - MAILER_ACCOUNT=${MAILER_ACCOUNT}
+      - MAILER_PASS=${MAILER_PASS}
+      - HOST=postgres_db
+      - DB_DIALECT=${DB_DIALECT}
+  mongo:
+    container_name: mongo_db
+    image: mongo
+    ports:
+      - "27017:27017"
+    environment:
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=root
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=password
+  postgres:
+    container_name: postgres_db
+    image: postgres
+    ports:
+      - "5432:5432"
+    env_file: ".env"
+    environment:
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASS}
