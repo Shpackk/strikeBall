@@ -15,6 +15,3 @@ passport.use(new LocalStrategy({
             }
         }).catch(done)
 }))
-
-//passport jwt | facebook | google 
-
