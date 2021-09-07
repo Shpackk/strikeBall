@@ -65,7 +65,7 @@ module.exports.loginUser = async (req, res, next) => {
                 res.status(201).json({
                     id: userDB.id,
                     name: userDB.name,
-                    roleId: userDB.RoleId,
+                    roleId: userDB.roleId,
                     token: accessToken
                 })
             } else next({ msg: "wrong password" })
