@@ -18,7 +18,6 @@ services:
       - MAILER_PASS=${MAILER_PASS}
       - HOST=postgres_db
       - DB_DIALECT=${DB_DIALECT}
-      - MONGO_DB_URI=mongodb://root:123456789@mongo:27017/
     networks:
       - node-app
 
@@ -28,10 +27,6 @@ services:
     restart: always
     ports:
       - "27017:27017"
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=root
-      - MONGO_INITDB_ROOT_PASSWORD=123456789
-      - MONGO_INITDB_DATABASE=mongo
     networks:
       - node-app
 
