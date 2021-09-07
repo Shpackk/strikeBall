@@ -18,7 +18,7 @@ router.get('/auth/google/callback', function (req, res, next) {
         res.render('profile', {
             email: data.user.email,
             name: data.user.name,
-            RoleId: 1,
+            roleId: 1,
             picture: data.user.picture
         })
     })(req, res, next)
