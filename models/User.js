@@ -5,8 +5,8 @@ const {
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     static associate({ Team, Request, Banlist, Role }) {
-      this.belongsTo(Role)
-      this.belongsTo(Team)
+      this.belongsTo(Role, { foreignKey: 'roleId' })
+      this.belongsTo(Team, { foreignKey: 'teamId' })
       this.hasOne(Request)
       this.hasOne(Banlist, { foreignKey: 'userId' })
     }
