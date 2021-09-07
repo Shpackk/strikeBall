@@ -1,22 +1,10 @@
-const app = require('../../app')
-const data = require('../testUsersData')
 const service = require('../helpService')
-const supertest = require('supertest')
 
 beforeAll(async () => {
-    const admin = await supertest(app)
-        .post('/login')
-        .send(data.adminCreds)
-    const user = await supertest(app)
-        .post('/signup')
-        .send(data.AnotherUser)
-    return token = [
-        { token: admin.body.token },
-        { token: user.body.token },
-    ]
+    const token = await service.loginForTests()
+    return token
 })
 describe('Team join request', () => {
-
     test('should return message that request is done correctly', async () => {
         const response = await service.applyToJoinTeam(token[1].token)
         expect(response.statusCode).toEqual(200)
@@ -28,7 +16,6 @@ describe('Team join request', () => {
             })
         )
     })
-
     test('should return error message for bad request', async () => {
         const response = await service.nonExistingTeam(token[1])
         expect(response.statusCode).toEqual(404)
@@ -51,7 +38,6 @@ describe('Team join request', () => {
             })
         )
     })
-
     test('inform about error pointint to non-existing request', async () => {
         const response = await service.nonExistingRequest(token[0])
         expect(response.statusCode).toEqual(404)
@@ -62,7 +48,6 @@ describe('Team join request', () => {
             })
         )
     })
-
     test('should successfully reject request', async () => {
         const { body } = await service.extractRequest(token[0])
         const response = await service.declineRequest(body[0].id, token[0])
@@ -77,7 +62,6 @@ describe('Team join request', () => {
         expect(requestsAfterReject.body).toHaveLength(0)
     })
 })
-
 afterAll(async () => {
     await service.testUserDelete('fortestpurpose')
     service.closeConnection()

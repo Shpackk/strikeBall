@@ -1,19 +1,8 @@
-const app = require('../../app')
-const data = require('../testUsersData')
 const service = require('../helpService')
-const supertest = require('supertest')
 
 beforeAll(async () => {
-    const admin = await supertest(app)
-        .post('/login')
-        .send(data.adminCreds)
-    const user = await supertest(app)
-        .post('/signup')
-        .send(data.AnotherUser)
-    return token = [
-        { token: admin.body.token },
-        { token: user.body.token },
-    ]
+    const token = await service.loginForTests()
+    return token
 })
 
 describe('Manager registration and checking if he is added to all managers', () => {

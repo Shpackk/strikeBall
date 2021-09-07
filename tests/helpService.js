@@ -5,6 +5,20 @@ const { User } = require('../models/index')
 const supertest = require('supertest')
 const passControl = require('../service/passwordService')
 
+
+async function loginForTests() {
+    const admin = await supertest(app)
+        .post('/login')
+        .send(data.adminCreds)
+    const user = await supertest(app)
+        .post('/signup')
+        .send(data.AnotherUser)
+    return token = [
+        { token: admin.body.token },
+        { token: user.body.token },
+    ]
+}
+
 function generateCreds() {
     const length = 10,
         charset = "abcdefghijklmnopqrstuvwxyz";
@@ -15,7 +29,6 @@ function generateCreds() {
     return retVal;
 }
 
-//1111111111
 async function getAllUsers(token) {
     const users = await supertest(app)
         .get('/users')
@@ -53,7 +66,7 @@ async function unBanUser(id, token) {
         })
     return unbannedUser
 }
-// 222222222222
+
 async function createRequest(token) {
     const response = await supertest(app)
         .patch('/team/1/join')
@@ -74,7 +87,7 @@ async function deleteRequest(id, token) {
         .set(token)
     return response
 }
-//33333333333
+
 async function getManagers(token) {
     const response = await supertest(app)
         .get('/managers')
@@ -119,9 +132,8 @@ async function declineRequest(id, token) {
         })
     return response
 }
-// 444444444
+
 async function updateInfo(creds, token) {
-    //token passed fron outside not from logging in beforeAll
     const response = await supertest(app)
         .patch('/user/update')
         .set({ token })
@@ -138,7 +150,7 @@ async function getUser(id, token) {
         .set(token)
     return response
 }
-//55555555555
+
 async function registerUser(credentials = generateCreds()) {
     const response = await supertest(app)
         .post("/signup")
@@ -151,7 +163,6 @@ async function registerUser(credentials = generateCreds()) {
     return response
 }
 async function applyToJoinTeam(tok) {
-    //token passed fron outside not from logging in beforeAll
     const response = await supertest(app)
         .patch('/team/1/join')
         .set({ 'token': tok })
@@ -232,9 +243,7 @@ async function loginUser(name, password) {
         })
     return response
 }
-// 788888888888888888888888888888888
 
-//7777777777777777777777777
 async function createTestUsers() {
     const newManager = { ...data.testManager, password: await passControl.hash(data.testManager.password) };
     const newUserr = { ...data.testUserTwo, password: await passControl.hash(data.testUserTwo.password) };
@@ -248,34 +257,34 @@ function closeConnection() {
     db.sequelize.close()
 }
 
-
 module.exports = {
+    banUser,
+    getUser,
+    unBanUser,
     loginUser,
-    createTestUsers,
-    testUserDelete,
-    closeConnection,
-    declineRequest,
-    nonExistingRequest,
-    nonExistingTeam,
-    playersByTeam,
-    kickUserFromTeam,
-    applyToLeaveTeam,
+    regManager,
+    updateInfo,
+    getAllUsers,
+    getManagers,
     checkProfile,
     registerUser,
-    acceptTeamJoin,
-    applyToJoinTeam,
-    getUser,
-    updateInfo,
-    createRequest,
-    viewMyRequests,
+    playersByTeam,
     deleteRequest,
-    generateCreds,
-    getAllUsers,
-    banUser,
-    viewBannedUser,
-    unBanUser,
     acceptRequest,
+    generateCreds,
+    loginForTests,
+    createRequest,
+    testUserDelete,
     extractRequest,
-    regManager,
-    getManagers
+    viewBannedUser,
+    declineRequest,
+    viewMyRequests,
+    acceptTeamJoin,
+    createTestUsers,
+    applyToJoinTeam,
+    closeConnection,
+    nonExistingTeam,
+    kickUserFromTeam,
+    applyToLeaveTeam,
+    nonExistingRequest
 }

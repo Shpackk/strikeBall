@@ -1,15 +1,8 @@
-const app = require('../../app')
-const data = require('../testUsersData')
 const service = require('../helpService')
-const supertest = require('supertest')
 
 beforeAll(async () => {
-    const admin = await supertest(app)
-        .post('/login')
-        .send(data.adminCreds)
-    return token = [
-        { token: admin.body.token },
-    ]
+    const token = await service.loginForTests()
+    return token
 })
 
 describe('patch on /user/update', () => {
@@ -24,7 +17,6 @@ describe('patch on /user/update', () => {
                 name: expect.anything()
             })
         )
-
         const viewUser = await service.getUser(newUser.body.id, token[0])
         expect(viewUser.body).toEqual(
             expect.objectContaining({
@@ -33,9 +25,7 @@ describe('patch on /user/update', () => {
                 email: expect.any(String)
             })
         )
-
     })
-
     afterAll(async () => {
         await service.testUserDelete(creds)
         await service.testUserDelete('fortestpurpose')

@@ -4,7 +4,6 @@ const service = require('../helpService')
 const { Banlist } = require('../../models/index')
 const data = require('../testUsersData')
 
-
 beforeAll(async () => {
     const user = await service.createTestUsers()
     await Banlist.create({
@@ -48,7 +47,6 @@ describe('Post on /signup', () => {
             })
         )
     })
-    // when role field is blank , error message pops up
     test("should return error message that role field is invalid", async () => {
         const response = await supertest(app).post('/signup').send({
             name: "coolbobby",
@@ -79,7 +77,6 @@ describe('Post on /signup', () => {
             })
         )
     })
-    ///;kjfhglskjdfhglskjfhglskjfdhglskfjdhgslkdfjh
     test("Should return users credentials when logging in", async () => {
         const response = await service.loginUser(data.testManager.name, data.testManager.password)
         expect(response.body).toEqual(
@@ -95,7 +92,6 @@ describe('Post on /signup', () => {
         expect(response.body).toBeDefined()
 
     })
-
     test("Should inform that user is banned from service", async () => {
         const response = await service.loginUser(data.testUser.name, data.testUser.password)
         expect(response.statusCode).toBe(403)
@@ -103,7 +99,6 @@ describe('Post on /signup', () => {
         expect(response.body).toBeDefined()
         expect(response.body).toEqual(expect.any(Object))
     })
-
     afterAll(async () => {
         await service.testUserDelete(data.AnotherUser.name)
         await service.testUserDelete(data.testUserTwo.name)

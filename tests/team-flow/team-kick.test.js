@@ -1,20 +1,9 @@
 // no saved data after test
-const app = require('../../app')
-const data = require('../testUsersData')
 const service = require('../helpService')
-const supertest = require('supertest')
 
 beforeAll(async () => {
-    const admin = await supertest(app)
-        .post('/login')
-        .send(data.adminCreds)
-    const user = await supertest(app)
-        .post('/signup')
-        .send(data.AnotherUser)
-    return token = [
-        { token: admin.body.token },
-        { token: user.body.token },
-    ]
+    const token = await service.loginForTests()
+    return token
 })
 
 describe("Get on /team/id/players, delete on /team/id/kick", () => {
@@ -29,7 +18,6 @@ describe("Get on /team/id/players, delete on /team/id/kick", () => {
                 message: expect.stringMatching('Sucessfully applied!')
             })
         )
-
         const checkJoinAsAdmin = await service.extractRequest(token[0])
         expect(checkJoinAsAdmin.statusCode).toBe(200)
         expect(checkJoinAsAdmin.body).toBeDefined()

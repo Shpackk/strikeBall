@@ -1,20 +1,9 @@
 // no data saved after test
-const app = require('../../app')
-const data = require('../testUsersData')
 const service = require('../helpService')
-const supertest = require('supertest')
 
 beforeAll(async () => {
-    const admin = await supertest(app)
-        .post('/login')
-        .send(data.adminCreds)
-    const user = await supertest(app)
-        .post('/signup')
-        .send(data.AnotherUser)
-    return token = [
-        { token: admin.body.token },
-        { token: user.body.token },
-    ]
+    const token = await service.loginForTests()
+    return token
 })
 describe('POST on /user/:id/ban', () => {
 
@@ -53,7 +42,6 @@ describe('POST on /user/:id/ban', () => {
             })
         )
 
-
         const unBannedUser = await service.viewBannedUser(retrievedUsers.body[1].id, token[0])
         expect(unBannedUser.statusCode).toBe(200)
         expect(unBannedUser.body).toBeDefined()
@@ -62,7 +50,6 @@ describe('POST on /user/:id/ban', () => {
                 Banlist: null
             })
         )
-
     })
     afterAll(async () => {
         await service.testUserDelete('fortestpurpose')
