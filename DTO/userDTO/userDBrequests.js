@@ -8,7 +8,7 @@ async function createUser(name, roleId, password, email, picturePath) {
         return await User.create({
             email,
             name,
-            RoleId: roleId,
+            roleId,
             password,
             picture: picturePath
         })
@@ -20,7 +20,7 @@ async function createUser(name, roleId, password, email, picturePath) {
 async function findAllUsers() {
     try {
         return await User.findAll({
-            attributes: ['id', 'email', 'name', 'RoleId',],
+            attributes: ['id', 'email', 'name', 'roleId',],
             include: [
                 { model: Team, attributes: ['id', 'name'] },
                 { model: Banlist, attributes: ['description'] }
@@ -35,7 +35,7 @@ async function findAllManagers() {
     try {
         return await User.findAll({
             where: {
-                RoleId: 2
+                roleId: 2
             },
             attributes: ['id', 'email', 'name']
         })
@@ -49,7 +49,7 @@ async function findOneManager(id) {
         return await User.findOne({
             where: {
                 id,
-                RoleId: '2'
+                roleId: '2'
             },
             attributes: ['id', 'name', 'email']
         })
@@ -68,7 +68,7 @@ async function createUserGoogle(user) {
             defaults: {
                 googleId: user.googleId,
                 name: user.name,
-                RoleId: roleId,
+                roleId,
                 picture: user.picture,
                 email: user.email
             }
@@ -151,7 +151,7 @@ async function findOneByEmail(email) {
             where: {
                 email
             },
-            attributes: ['id', 'name', 'RoleId']
+            attributes: ['id', 'name', 'roleId']
         })
         return user.dataValues
     } catch (error) {
@@ -253,7 +253,7 @@ async function updateTeamStatus(requestId, userEmail, requestType, teamId) {
         if (requestType == 'join') {
             await checkInAnotherTeam(teamId, user.dataValues.id)
             const result = await teamDbRequest.addToTeam(user.dataValues.id, teamId)
-            user.TeamId = teamId
+            user.teamId = teamId
             user.save()
             return result
         } else {
@@ -313,7 +313,7 @@ async function findAdminId() {
     try {
         const adminId = await User.findOne({
             where: {
-                RoleId: 3
+                roleId: 3
             },
             attributes: ['id']
         })

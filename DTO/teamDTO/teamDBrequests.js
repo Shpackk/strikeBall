@@ -67,7 +67,7 @@ async function deleteFromTeam(userId, teamId) {
         teamDb.id = teamId
         teamDb.save()
 
-        await User.update({ TeamId: null }, {
+        await User.update({ teamId: null }, {
             where: {
                 id: userId
             }
