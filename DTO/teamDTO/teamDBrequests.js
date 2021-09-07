@@ -10,6 +10,7 @@ async function createTeam(name) {
         throw error
     }
 }
+
 async function addToTeam(userId, teamId) {
     try {
         const teamDb = await Team.findOne({
@@ -46,7 +47,7 @@ async function addToTeam(userId, teamId) {
         throw error
     }
 }
-// deletion from team
+
 async function deleteFromTeam(userId, teamId) {
     try {
         const teamDb = await Team.findOne({
@@ -101,8 +102,6 @@ async function checkUserInTeam(userId, teamId) {
         throw error
     }
 }
-
-
 module.exports = {
     addToTeam, deleteFromTeam, createTeam, checkUserInTeam,
 }

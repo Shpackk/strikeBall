@@ -12,5 +12,4 @@ async function findRole(roleName) {
         throw error
     }
 }
-
 module.exports = { findRole }

@@ -12,8 +12,6 @@ async function isBanned(userEmail) {
     }
 }
 
-
-
 async function banUser(userId, description, userEmail) {
     try {
         return await Banlist.create({
@@ -37,5 +35,4 @@ async function unbanUser(userId) {
         throw error
     }
 }
-
 module.exports = { banUser, isBanned, unbanUser }

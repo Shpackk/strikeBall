@@ -3,7 +3,6 @@ const Op = Sequelize.Op
 const { User, Request, Team, Role, Banlist } = require('../../models/index')
 const teamDbRequest = require('../teamDTO/teamDBrequests')
 
-// for users JWT signup
 async function createUser(name, roleId, password, email, picturePath) {
     try {
         return await User.create({
@@ -18,7 +17,6 @@ async function createUser(name, roleId, password, email, picturePath) {
     }
 }
 
-//for all users view
 async function findAllUsers() {
     try {
         return await User.findAll({
@@ -33,7 +31,6 @@ async function findAllUsers() {
     }
 }
 
-//find all managers
 async function findAllManagers() {
     try {
         return await User.findAll({
@@ -46,8 +43,6 @@ async function findAllManagers() {
         throw error
     }
 }
-
-//find one manager
 
 async function findOneManager(id) {
     try {
@@ -63,8 +58,6 @@ async function findOneManager(id) {
     }
 }
 
-
-//google auth
 async function createUserGoogle(user) {
     const roleId = 1
     try {
@@ -85,7 +78,6 @@ async function createUserGoogle(user) {
     }
 }
 
-// delete user 
 async function deleteUser(userId) {
     try {
         return await User.destroy({
@@ -98,7 +90,6 @@ async function deleteUser(userId) {
     }
 }
 
-// update info of user
 async function updateUser(userInfo, id) {
     try {
         return await User.update(userInfo, {
@@ -112,7 +103,6 @@ async function updateUser(userInfo, id) {
     }
 }
 
-// check if user is already registered 
 async function findOneUser(name, email) {
     try {
         return await User.findOne({
@@ -125,7 +115,6 @@ async function findOneUser(name, email) {
     }
 }
 
-//for loging in 
 async function findOneByName(name) {
     try {
         return await User.findOne({
@@ -138,7 +127,6 @@ async function findOneByName(name) {
     }
 }
 
-// to view one users info
 async function findOneById(id) {
     try {
         return await User.findOne({
@@ -157,7 +145,6 @@ async function findOneById(id) {
     }
 }
 
-//find by email for password reset
 async function findOneByEmail(email) {
     try {
         const user = await User.findOne({
@@ -172,7 +159,6 @@ async function findOneByEmail(email) {
     }
 }
 
-// find one by id to update password
 async function updatePassword(id, password) {
     try {
         return await User.update({ password }, {
@@ -185,7 +171,6 @@ async function updatePassword(id, password) {
     }
 }
 
-// create request
 async function newRequest(user, type, teamId) {
     let request = {
         status: 'active',
