@@ -1,22 +1,8 @@
-const dbRequest = require('../DTO/teamDTO/teamDBrequests')
-const dbUserRequest = require('../DTO/userDTO/userDBrequests')
 const mailer = require('../service/mailMessageHandler')
 const socket = require('../service/socketMessaging')
 const mongoLog = require('../service/mongoLogsSaver.js')
-
-
-async function createTeam(req, res, next) {
-    const { teamName } = req.body
-    try {
-        const createdTeam = await dbRequest.createTeam(teamName)
-        res.json({
-            message: `Team ${createdTeam.dataValues.name} created`,
-        })
-    } catch (error) {
-        next(error)
-    }
-
-}
+const dbRequest = require('../DTO/teamDTO/teamDBrequests')
+const dbUserRequest = require('../DTO/userDTO/userDBrequests')
 
 async function joinTeam(req, res, next) {
     const userId = req.user.id
@@ -86,6 +72,4 @@ async function kickPlayerFromTeam(req, res, next) {
         next(error)
     }
 }
-
-
-module.exports = { joinTeam, leaveTeam, createTeam, viewPlayersInTeam, kickPlayerFromTeam }
+module.exports = { joinTeam, leaveTeam, viewPlayersInTeam, kickPlayerFromTeam }

@@ -1,12 +1,11 @@
-const passControl = require('../service/passwordService')
-const token = require('../service/tokenService')
-const dbRequest = require('../DTO/userDTO/userDBrequests')
-const banDbRequest = require('../DTO/banDTO/banRequests')
 const check = require('../middleware/inputVerify')
+const token = require('../service/tokenService')
 const socket = require('../service/socketMessaging')
-const rolesDbRequest = require('../DTO/rolesDTO/rolesDBrequests')
 const mongoLog = require('../service/mongoLogsSaver.js')
-
+const dbRequest = require('../DTO/userDTO/userDBrequests')
+const passControl = require('../service/passwordService')
+const banDbRequest = require('../DTO/banDTO/banRequests')
+const rolesDbRequest = require('../DTO/rolesDTO/rolesDBrequests')
 
 module.exports.createUser = async (req, res, next) => {
     const user = {

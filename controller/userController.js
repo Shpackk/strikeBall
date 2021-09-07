@@ -1,14 +1,13 @@
-const dbRequest = require('../DTO/userDTO/userDBrequests')
-const dbTeamRequest = require('../DTO/teamDTO/teamDBrequests')
-const banDbRequest = require('../DTO/banDTO/banRequests')
 const check = require('../middleware/inputVerify')
-const mailer = require('../service/mailMessageHandler')
-const socket = require('../service/socketMessaging')
-const passControl = require('../service/passwordService')
 const token = require('../service/tokenService')
+const socket = require('../service/socketMessaging')
+const mailer = require('../service/mailMessageHandler')
 const mongoLog = require('../service/mongoLogsSaver.js')
+const dbRequest = require('../DTO/userDTO/userDBrequests')
+const passControl = require('../service/passwordService')
+const banDbRequest = require('../DTO/banDTO/banRequests')
+const dbTeamRequest = require('../DTO/teamDTO/teamDBrequests')
 
-// to view all users
 async function viewUsers(req, res, next) {
     const teamid = req.query.teamid
     try {
@@ -22,7 +21,6 @@ async function viewUsers(req, res, next) {
     }
 }
 
-// delete user
 async function deleteUser(req, res, next) {
     const userId = req.params.id
     try {
@@ -34,7 +32,6 @@ async function deleteUser(req, res, next) {
     }
 }
 
-// view one user by id
 async function viewOneById(req, res, next) {
     let userId
     req.params.id ?
@@ -51,8 +48,6 @@ async function viewOneById(req, res, next) {
     }
 }
 
-
-//all managers view
 async function viewManagers(req, res, next) {
     try {
         const managers = await dbRequest.findAllManagers()
@@ -74,7 +69,6 @@ async function viewManagerById(req, res, next) {
     }
 }
 
-// update users info 
 async function userInfoUpdate(req, res, next) {
     const userId = req.user.id
     const newUserInfo = Object.assign({}, req.body) // multer brokes req.body
@@ -139,7 +133,6 @@ async function resetPassword(req, res, next) {
         next(error)
     }
 }
-
 
 async function getRequests(req, res, next) {
     try {

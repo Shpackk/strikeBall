@@ -1,5 +1,3 @@
-
-
 function deleteUser(req, res) {
     res.render('delete')
 }
@@ -15,8 +13,4 @@ function home(req, res) {
 function login(req, res) {
     res.render('login')
 }
-
-
-
-
 module.exports = { deleteUser, signUp, getAllUsers, home, login }
