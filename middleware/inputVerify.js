@@ -7,7 +7,6 @@ function inputValidation(user) {
     return
 }
 
-
 function badInput(user) {
     const namePattern = /[a-z0-9]{2,}/
     if (user.hasOwnProperty('name')) {
@@ -20,7 +19,6 @@ function badInput(user) {
             return "role"
         }
     }
-
     if (user.hasOwnProperty('password')) {
         if (user.password.length <= 4) {
             return "password"
@@ -34,6 +32,5 @@ function badInput(user) {
     }
     return false
 }
-
 module.exports = { inputValidation }
 
