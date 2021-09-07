@@ -2,31 +2,27 @@ const nodemailer = require("nodemailer");
 
 async function sandMail(email, topic, description) {
     const msg = generateMessage(topic, description)
-
     const transporter = nodemailer.createTransport({
         host: "smtp.gmail.com",
         port: 587,
-        secure: false, // true for 465, false for other ports
+        secure: false,
         auth: {
             user: process.env.MAILER_ACCOUNT,
             pass: process.env.MAILER_PASS,
         },
     });
-
     const info = await transporter.sendMail({
-        from: '"StrikeBall Team" <foo@example.com>', // sender address
-        to: email, // list of receivers
-        subject: topic, // Subject line
-        html: msg, // plain text body
+        from: '"StrikeBall Team" <foo@example.com>',
+        to: email,
+        subject: topic,
+        html: msg,
     });
     if (process.env.NODE_ENV !== 'test') {
         console.log("Message sent: %s", info.messageId);
         console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
         console.log('Email message : ', msg)
     }
-
 }
-
 function generateMessage(topic, description) {
     if (topic == 'ban') {
         return `We're sorry. You have been banned due to ${description}`

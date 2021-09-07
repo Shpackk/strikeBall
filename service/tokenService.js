@@ -12,7 +12,6 @@ module.exports.sign = user => {
         throw error
     }
 }
-
 module.exports.signForReset = user => {
     const userToSign = {
         id: user.id,
@@ -32,7 +31,6 @@ module.exports.verifyForReset = token => {
         throw error
     }
 }
-
 module.exports.decode = token => {
     try {
         return jwt.decode(token, process.env.JWT_SECRET)

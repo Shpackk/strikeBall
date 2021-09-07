@@ -26,9 +26,4 @@ async function notifyAdminManager(type) {
         io.emit(manager.id, type)
     });
 }
-
-// server.listen(3001, () => {
-//     console.log('Sockets listening')
-// })
-
 module.exports = { sendNotification, notificationForAdmin, findAndNotify, notifyAdminManager }
