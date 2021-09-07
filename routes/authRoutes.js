@@ -6,7 +6,6 @@ const token = require('../service/tokenService')
 const multer = require('../service/staticFilesHandler')
 require('../config/passportJWT')
 require('../config/passportGoogle')
-require('../config/passportFacebook')
 const router = Router();
 
 router.get('/auth/google', passport.authenticate('google', { scope: ['email', 'profile'] }))

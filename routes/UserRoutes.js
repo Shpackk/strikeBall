@@ -8,7 +8,6 @@ const getController = require('../controller/getController')
 require('../config/passportJWT')
 require('../config/passportGoogle')
 
-
 router.get('/managers', passport.authenticate('jwt', { session: false }), role.requireAdmin, userController.viewManagers)
 
 router.get('/requests', passport.authenticate('jwt', { session: false }), role.requireManagerAdmin, userController.getRequests)

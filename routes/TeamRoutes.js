@@ -6,7 +6,6 @@ const router = Router();
 require('../config/passportJWT')
 
 
-router.post('/team/createTeam', passport.authenticate('jwt', { session: false }), role.requireManagerAdmin, teamController.createTeam)
 
 router.patch('/team/:id/join', passport.authenticate('jwt', { session: false }), teamController.joinTeam)
 
