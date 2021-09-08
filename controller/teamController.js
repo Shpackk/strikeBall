@@ -44,8 +44,9 @@ async function leaveTeam(req, res, next) {
 
 async function viewPlayersInTeam(req, res, next) {
     const teamId = req.params.id
+    const { limit, offset } = req.query
     try {
-        const users = await dbUserRequest.getUsersByTeam(teamId)
+        const users = await dbUserRequest.getUsersByTeam(teamId, limit, offset)
         res.status(200).json(users)
         await mongoLog.save(req.user.name, req.method, req.url, req.body)
     } catch (error) {

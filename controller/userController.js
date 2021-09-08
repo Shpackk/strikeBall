@@ -9,11 +9,11 @@ const banDbRequest = require('../DTO/banDTO/banRequests')
 const dbTeamRequest = require('../DTO/teamDTO/teamDBrequests')
 
 async function viewUsers(req, res, next) {
-    const teamid = req.query.teamid
+    const { teamid, limit, offset } = req.query
     try {
         const users = teamid ?
-            await dbRequest.getUsersByTeam(teamid)
-            : await dbRequest.findAllUsers()
+            await dbRequest.getUsersByTeam(teamid, limit, offset)
+            : await dbRequest.findAllUsers(limit, offset)
         res.status(200).json(users)
         await mongoLog.save(req.user.name, req.method, req.url, req.body)
     } catch (error) {
@@ -49,8 +49,9 @@ async function viewOneById(req, res, next) {
 }
 
 async function viewManagers(req, res, next) {
+    const { limit, offset } = req.query
     try {
-        const managers = await dbRequest.findAllManagers()
+        const managers = await dbRequest.findAllManagers(limit, offset)
         res.status(200).json(managers)
         await mongoLog.save(req.user.name, req.method, req.url, req.body)
     } catch (error) {
@@ -135,8 +136,9 @@ async function resetPassword(req, res, next) {
 }
 
 async function getRequests(req, res, next) {
+    const { limit, offset } = req.query
     try {
-        const requests = await dbRequest.extractRequests(req.user.roleId)
+        const requests = await dbRequest.extractRequests(req.user.roleId, limit, offset)
         res.status(200).json(requests)
         await mongoLog.save(req.user.name, req.method, req.url, req.body)
     } catch (error) {

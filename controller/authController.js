@@ -22,23 +22,14 @@ module.exports.createUser = async (req, res, next) => {
             const roleId = await rolesDbRequest.findRole(user.role)
             if (user.role == 'user') {
                 const hashedPassword = await passControl.hash(user.password, 10)
-                const userDB = await dbRequest.createUser(user.name, roleId, hashedPassword, user.email, picturePath)
-                const accessToken = token.sign(userDB.dataValues)
-                res.status(200).json({
-                    id: userDB.dataValues.id,
-                    email: userDB.dataValues.email,
-                    name: userDB.dataValues.name,
-                    roleId: roleId,
-                    token: accessToken
-                })
+                await dbRequest.createUser(user.name, roleId, hashedPassword, user.email, picturePath)
+                res.status(200).json({ message: "You can now log in!" })
             }
             if (user.role == 'manager') {
                 user.password = await passControl.hash(user.password, 10)
                 await dbRequest.newRequest(user, 'register')
                 await socket.notificationForAdmin('New Manager Registration')
-                res.status(201).json({
-                    message: 'You sucessfully applied!'
-                })
+                res.status(201).json({ message: 'You sucessfully applied!' })
             }
         } else next({ status: 409 })
         await mongoLog.save(user.name, req.method, req.url, req.body)
