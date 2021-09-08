@@ -11,6 +11,7 @@ module.exports = {
 
   down: async (queryInterface, Sequelize) => {
     return queryInterface.removeColumn(
+      'Banlists',
       'userEmail'
     )
   }
