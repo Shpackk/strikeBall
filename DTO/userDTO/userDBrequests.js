@@ -17,13 +17,23 @@ async function createUser(name, roleId, password, email, picturePath) {
     }
 }
 
-async function findAllUsers() {
+async function findAllUsers(limit, offset) {
     try {
-        return await User.findAll({
+        return await User.findAndCountAll({
+            limit,
+            offset: limit * offset,
             attributes: ['id', 'email', 'name', 'roleId',],
             include: [
-                { model: Team, attributes: ['id', 'name'] },
-                { model: Banlist, attributes: ['description'] }
+                {
+                    model: Team,
+                    as: 'team',
+                    attributes: ['id', 'name']
+                },
+                {
+                    model: Banlist,
+                    as: 'banlist',
+                    attributes: ['description']
+                }
             ]
         })
     } catch (error) {
@@ -31,9 +41,11 @@ async function findAllUsers() {
     }
 }
 
-async function findAllManagers() {
+async function findAllManagers(limit, offset) {
     try {
         return await User.findAll({
+            limit,
+            offset: limit * offset,
             where: {
                 roleId: 2
             },
@@ -135,9 +147,21 @@ async function findOneById(id) {
             },
             attributes: ['id', 'email', 'name', 'picture'],
             include: [
-                { model: Team, attributes: ['id', 'name'] },
-                { model: Role, attributes: ['id', 'role'] },
-                { model: Banlist, attributes: ['description'] }
+                {
+                    model: Team,
+                    as: 'team',
+                    attributes: ['id', 'name']
+                },
+                {
+                    model: Role,
+                    as: 'role',
+                    attributes: ['id', 'role']
+                },
+                {
+                    model: Banlist,
+                    as: 'banlist',
+                    attributes: ['description']
+                }
             ]
         })
     } catch (error) {
@@ -201,7 +225,16 @@ async function extractRequests(roleId) {
     try {
         const requestConf = (roleId == 3) ?
             { attributes }
-            : { where: { requestType: { [Op.not]: "register" }, attributes } }
+            : {
+                limit,
+                offset: limit * offset,
+                where:
+                {
+                    requestType: { [Op.not]: "register" },
+                    attributes
+                }
+            }
+
         return await Request.findAll(requestConf)
     } catch (error) {
         throw error
@@ -292,13 +325,18 @@ async function checkInAnotherTeam(teamId, userId) {
     }
 }
 
-async function getUsersByTeam(teamId) {
+async function getUsersByTeam(teamId, limit, offset) {
     try {
         const users = await Team.findOne({
+            limit,
+            offset: limit * offset,
             where: {
                 id: teamId
             },
-            include: [{ model: User, attributes: ['id', 'name', 'email'] }]
+            include: [{
+                model: User,
+                attributes: ['id', 'name', 'email']
+            }]
         })
         if (users.length < 1) {
             return "No players in this team"
