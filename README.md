@@ -45,7 +45,7 @@ watch the results in the right.
 
 ## Tech
 
-- [Node.JS] - Express
+- [Node.JS](https://nodejs.org/en/) - Express
 - [PostgreSQL](https://www.postgresql.org) - Sequelize, Sequelize-Cli,Pg, Pg-hstore
 - [MongoDB](https://www.mongodb.com/cloud/atlas/lp/try2?utm_content=controlhterms&utm_source=google&utm_campaign=gs_emea_ukraine_search_core_brand_atlas_desktop&utm_term=mongodb&utm_medium=cpc_paid_search&utm_ad=e&utm_ad_campaign_id=12212624575&gclid=CjwKCAjwvuGJBhB1EiwACU1AibG0AG6A_2dQ7f10inHIgdnyYhXTjJZnXA-8dx-RErEQq2WAtu9nrBoCjIEQAvD_BwE) - Mongoose
 - [Passport](http://www.passportjs.org) - Passport-JWT, Passport-Google-Oauth2
