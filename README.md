@@ -69,7 +69,7 @@ npm run dev
 ## Testing
 
 ```sh
-nmp run test
+npm run test
 ```
 
 ## Docker
